@@ -13,7 +13,7 @@
 % plotOptions       - tells whether plots should be graphed in subplots or
 %                     not.
 %**************************************************************************
-function [fPath,StratTypeFolder,forceData,stateData,handles,TOP_LIMIT,BOTTOM_LIMIT]...
+function [fPath,StratTypeFolder,localForceData,stateData,handles,TOP_LIMIT,BOTTOM_LIMIT]...
                                         =snapData3(StrategyType,FolderName,plotOptions)
 
 %% INTIALIZATION
@@ -33,8 +33,18 @@ function [fPath,StratTypeFolder,forceData,stateData,handles,TOP_LIMIT,BOTTOM_LIM
     end
 
 %% Load the data
-    % Angle data, force data, joint spring data, state data
-    [angleData,forceData,jointsnapData,stateData] = loadData(fPath,StratTypeFolder,FolderName);
+    % Angle data, cartesian data, local force data, world force data, joint spring data, state data
+    % For one arm, default right:
+    if ~strcmp(StrategyType,'SIM_SA_DualArm')
+        [angleData,cartData,localForceData,worldForceData,jointsnapData,stateData] = loadData(fPath,StratTypeFolder,FolderName);
+    
+    % For two arms, left and right.
+    else
+         [angleData, cartData, localForceData, worldForceData, ...
+          angleDataL,cartDataL,localForceDataL,worldForceDataL,...
+          jointsnapData,stateData] = loadData(fPath,StratTypeFolder,FolderName);
+    end
+    %----------------------------
     
     %----------------------------------------------------------------------
     % The following code plots the data in the Torques.dat file. If running
@@ -46,7 +56,7 @@ function [fPath,StratTypeFolder,forceData,stateData,handles,TOP_LIMIT,BOTTOM_LIM
                 % Different plots may have different durations. The duration in seconds
                 % is hard-coded in this function for specific trials. 
                 % A percentage is returned to use in scaling the plot axis. 
-                [TIME_LIMIT_PERC, SIGNAL_THRESHOLD] = CustomizePlotLength(StrategyType,FolderName,forceData);   
+                [TIME_LIMIT_PERC, SIGNAL_THRESHOLD] = CustomizePlotLength(StrategyType,FolderName,localForceData);   
             else
                 TIME_LIMIT_PERC = -1; SIGNAL_THRESHOLD = -1;
             end
@@ -90,82 +100,82 @@ function [fPath,StratTypeFolder,forceData,stateData,handles,TOP_LIMIT,BOTTOM_LIM
 %% For HIRO no spring joint angles in the camera
 %% Plot Fx
             if(plotOptions==1)
-                pFx=subplot(3,2,1); plot(forceData(:,1),forceData(:,2));
+                pFx=subplot(3,2,1); plot(localForceData(:,1),localForceData(:,2));
             else
-                pFx=plot(forceData(:,1),forceData(:,2));
+                pFx=plot(localForceData(:,1),localForceData(:,2));
             end
             title('Fx Plot'); xlabel('Time (secs)'); ylabel('Force (N)');
 
             % Adjust Axes
             MARGIN = SWITCH;
             AVERAGE = 0;	% uses the average value of data to compute the axis limits. useful for data with big impulses
-            [TOP_LIMIT_Fx, BOTTOM_LIMIT_Fx] = adjustAxes('Fx',forceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);    
+            [TOP_LIMIT_Fx, BOTTOM_LIMIT_Fx] = adjustAxes('Fx',localForceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);    
 
 %% Plot Fy
             if(plotOptions==1)
-                pFy=subplot(3,2,3); plot(forceData(:,1),forceData(:,3));
+                pFy=subplot(3,2,3); plot(localForceData(:,1),localForceData(:,3));
             else
-                pFy=plot(forceData(:,1),forceData(:,3));
+                pFy=plot(localForceData(:,1),localForceData(:,3));
             end
             title('Fy Plot'); xlabel('Time (secs)'); ylabel('Force (N)');
 
             % Adjust Axes
             MARGIN = SWITCH;
             AVERAGE = 0;        
-            [TOP_LIMIT_Fy, BOTTOM_LIMIT_Fy] = adjustAxes('Fy',forceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);    
+            [TOP_LIMIT_Fy, BOTTOM_LIMIT_Fy] = adjustAxes('Fy',localForceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);    
 
 %% Plot Fz
             if(plotOptions==1)    
-                pFz=subplot(3,2,5); plot(forceData(:,1),forceData(:,4));
+                pFz=subplot(3,2,5); plot(localForceData(:,1),localForceData(:,4));
             else
-                pFz=plot(forceData(:,1),forceData(:,4));
+                pFz=plot(localForceData(:,1),localForceData(:,4));
             end
             title('Fz Plot'); xlabel('Time (secs)'); ylabel('Force (N)');
 
             % Adjust Axes
             MARGIN = SWITCH;
             AVERAGE = 0;    
-            [TOP_LIMIT_Fz, BOTTOM_LIMIT_Fz] = adjustAxes('Fz',forceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);
+            [TOP_LIMIT_Fz, BOTTOM_LIMIT_Fz] = adjustAxes('Fz',localForceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);
 
 %% Plot Mx
             if(plotOptions==1)    
-                pMx=subplot(3,2,2); plot(forceData(:,1),forceData(:,5));
+                pMx=subplot(3,2,2); plot(localForceData(:,1),localForceData(:,5));
             else
-                pMx=plot(forceData(:,1),forceData(:,5));
+                pMx=plot(localForceData(:,1),localForceData(:,5));
             end
             title('Mx Plot'); xlabel('Time (secs)'); ylabel('Moment (N-m)');
 
             % Adjust Axes
             MARGIN = SWITCH;     % If you want to insert a margin into the plots, set true.
             AVERAGE = 0;    % If you want to average the signal value
-            [TOP_LIMIT_Mx, BOTTOM_LIMIT_Mx] = adjustAxes('Mx',forceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);
+            [TOP_LIMIT_Mx, BOTTOM_LIMIT_Mx] = adjustAxes('Mx',localForceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);
 
 
 %% Plot My
             if(plotOptions==1)    
-                pMy=subplot(3,2,4); plot(forceData(:,1),forceData(:,6));
+                pMy=subplot(3,2,4); plot(localForceData(:,1),localForceData(:,6));
             else
-                pMy=plot(forceData(:,1),forceData(:,6));
+                pMy=plot(localForceData(:,1),localForceData(:,6));
             end
             title('My Plot'); xlabel('Time (secs)'); ylabel('Moment (N-m)');
 
             % Adjust Axes
             MARGIN = SWITCH;
             AVERAGE = 0;    
-            [TOP_LIMIT_My, BOTTOM_LIMIT_My] = adjustAxes('My',forceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);
+            [TOP_LIMIT_My, BOTTOM_LIMIT_My] = adjustAxes('My',localForceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);
 
 %% Plot Mz
             if(plotOptions==1)    
-                pMz=subplot(3,2,6); plot(forceData(:,1),forceData(:,7));
+                pMz=subplot(3,2,6); plot(localForceData(:,1),localForceData(:,7));
             else
-                pMz=plot(forceData(:,1),forceData(:,7));
+                pMz=plot(localForceData(:,1),localForceData(:,7));
             end
             title('Mz Plot'); xlabel('Time (secs)'); ylabel('Moment (N-m)');
 
             % Adjust Axes
             MARGIN = SWITCH;
             AVERAGE = 0;
-            [TOP_LIMIT_Mz, BOTTOM_LIMIT_Mz] = adjustAxes('Mz',forceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);
+            [TOP_LIMIT_Mz, BOTTOM_LIMIT_Mz] = adjustAxes('Mz',localForceData,StrategyType,TIME_LIMIT_PERC,SIGNAL_THRESHOLD,MARGIN,AVERAGE);
 
 %% Insert State Lines
             handles         = [pFx pFy pFz pMx pMy pMz];
@@ -180,7 +190,7 @@ function [fPath,StratTypeFolder,forceData,stateData,handles,TOP_LIMIT,BOTTOM_LIM
                 BOTTOM_LIMIT    = [BOTTOM_LIMIT_Fx BOTTOM_LIMIT_Fy BOTTOM_LIMIT_Fz BOTTOM_LIMIT_Mx BOTTOM_LIMIT_My BOTTOM_LIMIT_Mz];
             end
             % Call insertStates
-            EndTime = forceData(length(forceData),1);   % Pass the last time element of task as endtime.
+            EndTime = localForceData(length(localForceData),1);   % Pass the last time element of task as endtime.
             insertStates3(StrategyType,stateData,EndTime,handles,TOP_LIMIT,BOTTOM_LIMIT);    
 
 %% Save plot to file
