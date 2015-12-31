@@ -76,7 +76,7 @@ function [llbehStruc,llbehLbl] = llbehComposition(StrategyType,motComps,curHandl
     timeThresh=0.10;
     
     % Number of times to refine
-    RefinementCycles = LLB_REFINEMENT_CYCLES;
+    RefinementCycles = 5; % RefinementCycles = LLB_REFINEMENT_CYCLES; Beacuse global variable will be unuseful during parfor.
     
     % Time Flag
     timeCheckFlag = false;  % Used to indicate that a single primitive is longer than the time threshold

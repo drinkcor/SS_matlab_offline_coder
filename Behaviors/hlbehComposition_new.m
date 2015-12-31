@@ -181,6 +181,8 @@ function [hlbehStruc,avgMyData,snapVerificationSuccess,bool_fcData] = hlbehCompo
         % Only when all states where accomplished and there is a terminating time, do we want to subtract 1 to enumerate the number of states
         if(rState==5)
             StateNum    = rState(1)-1;        % STATE VECTOR MUST INCLUDE TASK'S ENDING TIME. We subtract one b/c there is no upper boundary after 4
+        else
+            StateNum    = 0;                  % DQ adding, in case the following StateNum are used before assigned
         end
     % PA10 Experiments have one more state than the HIRO Side Approach, because they include Alignment
     else
@@ -205,205 +207,206 @@ function [hlbehStruc,avgMyData,snapVerificationSuccess,bool_fcData] = hlbehCompo
 	hlbehStruc = zeros(1,rState(1)-1);      % Currently 5 States for PivotApproach 
                                             % Currently 4 states for Side Approach
 
-%% PivotApproach/PA10 Code
+%% PivotApproach/PA10 Code  This case's codes are commented, because it's for old robot
     if(~strcmp(StratTypeFolder,'ForceControl/HIRO/') && ~strcmp(StratTypeFolder,'ForceControl/ErrorCharac/'))
         
-        %% (1) Create a state x ForceElments Cell array structure
-
-        % Keep a counter of which labels belong to a given state
-        llLabelVector = zeros(4,1);                  % Empirically determined size with int inputs.
-
-        % Fill each state's dimension with llbeh sequence of labels. 
-        for state=1:StateNum
-
-        %% Define TIME limits of prevprev/prev/current/next/nextnext states
-        % If only 1 state, a behavior can only be in: current state.
-        % 2 states: behavior can be in: previous state and current state, or current state and next state.
-        % 3 states: prevprev/prev/curr or prev/curr/next or curr/next/nextnext
-        % 4 states: ppp/pp/p/c or pp/p/c/n or p/c/n/nn or c/n/nn/nnn
-        % Visualization
-        % _____________________________________________
-        % |          |          |          |          |
-        % sApp      eApp
-        %           sRot       eRod
-        %                      sIns       eIns
-        %                                 sMat        eMat
-            currStateEndTime   = stateData(state+1);        % Add 1 to capture the ENDING time
-
-            % PrevPrevState
-            if(state<3),                prevprevStateEndTime    = 0;
-            else                        prevprevStateEndTime    = stateData(state-2);
-            end
-
-            % PrevState
-            if(state<2),                prevStateEndTime        = 0;
-            else                        prevStateEndTime        = stateData(state);     
-            end        
-
-            % NextState (only applies if there are at laest 3 entries)
-            if(StateNum>=3)
-                if(StateNum-state>=2),    nextStateEndTime      = stateData(state+2);  % Do this computation if the total number of states is at least 2 numbers bigger than our current state. Before we had the following line that now has been updated: if(state < StateNum)
-                elseif(state == StateNum),nextStateEndTime      = currStateEndTime;
-                end
-            end
-
-            % NextNextState
-            if(StateNum>=4)
-                if(StateNum-state>=3),    nextnextStateEndTime  = stateData(state+3);    % Do this if ther eare at least 3 more states than current state. Before we had the following line: if(state < StateNum-1)
-                elseif(state == StateNum),nextnextStateEndTime  = nextStateEndTime;
-                end
-            end
-
-
-            %% For each AXIS FxyzMxyz, extract the labels according to time
-            for axis=1:NumForceAxis
-
-                % 1. Extract the llbehStruc data for each of the six dimensions
-                llbehStruc = llbehFM(:,:,axis);
-
-                % 2. For each label in llbehStruc. Traversing the structure. 
-                for index=1:strucSize(axis,1)    
-
-                    % 3. Extract a time vector
-                    timeVec = [llbehStruc(index,T1S:T2E)];
-                    minTime = min(timeVec);
-                    maxTime = max(timeVec);      
-                    if(maxTime>8.3)
-                        maxTime=8.3;
-                    end
-
-                    % Get state limits
-                    for stateTime=1:length(stateData)-1;
-                        % Check to see in which state the min time starts.
-                        s1 = stateData(stateTime);
-                        s2 = stateData(stateTime+1);
-                        % Lowerbound 
-                        if(minTime>=s1 && minTime <= s2)
-                            lowerState = stateTime;
-                        end
-                        % Upperbound
-                        if(maxTime>=s1 && maxTime <= s2)
-                            upperState = stateTime;
-                        end                    
-                    end
-
-                    %% Put in stateLbl
-                    for tt=lowerState:upperState
-
-                        % Just make a copy of the current state we are in to
-                        % avoid repetion in future states
-                        if(tt==state)
-                            % Compute length of labels in desired state
-                            curLen = length(stateLbl(tt,axis));
-
-                            % Copy current StateLbl to temp cell
-                            temp = stateLbl(tt,axis);
-
-                            % Place the new label in temp
-                            temp(1,curLen+1) = llbehStruc(index,1);
-                            
-                            % Copy back to stateLbl
-                            stateLbl(tt,axis) = temp;
-                        end
-                    end
-
-
-                end
-            end
-        end 
-
-        %% (2) Look for patterned sequence of low-level behaviors to determine if hlbeh's are present
-
-        Fx=1;Fy=2;Fz=3;Mx=4;My=5;Mz=6;
-        state2=2; snapState=3; matState=4; state5=5;
-        %%  Rotation (State 2). Conditions:
-        %       Fy -> PL   
-        %       Fz-> FX (with value not equal to zero)  
-        %       Mx -> ALIGN
-
-        % Save the contents of Fy, Fz, Mx in cell arrays for PA10 Robot
-        tempFy=stateLbl{state2,Fy}; tempFz=stateLbl{state2,Fz}; tempMx=stateLbl{state2,Mx};
-
-        % Look for conditions    
-        if(findStrings(tempFy,llbehLbl{PULL}))
-            if(findStrings(tempFz,llbehLbl{FIX}))
-                if(findStrings(tempMx,llbehLbl{ALIGN}))
-                    % All three conditions have been met. Set hlbehStruc for state 1 and 2 to true
-                    hlbehStruc(1:2) = 1;
-                end
-            end
-        end
-
-        %%  ALIGNMENT
-        %   Conditions: AL || SH + FX to show up in all axes (in our present case Fxyz, Mxyz). 
-        %   However, the moment axis corresponding to the direction of motion in which 
-        %   the insertion is taking place (Mz) could have just a FX reference or ALIGN->FX instead. 
-
-        % Save the contents of Fx, Fy, Mx
-        tempFx=stateLbl{snapState,Fx}; tempFy=stateLbl{snapState,Fy}; tempFz=stateLbl{snapState,Fz};
-        tempMx=stateLbl{snapState,Mx}; tempMy=stateLbl{snapState,My}; tempMz=stateLbl{snapState,Mz};
-
-        if( findStrings(tempFx,llbehLbl{ALIGN})|| findStrings(tempFx,llbehLbl{SHIFT},llbehLbl{FIX})) 
-            if( findStrings(tempFy,llbehLbl{ALIGN})|| findStrings(tempFy,llbehLbl{SHIFT},llbehLbl{FIX})) 
-                if( findStrings(tempFz,llbehLbl{ALIGN})|| findStrings(tempFz,llbehLbl{SHIFT},llbehLbl{FIX})) 
-                    if( findStrings(tempMx,llbehLbl{ALIGN})|| findStrings(tempMx,llbehLbl{SHIFT},llbehLbl{FIX})) 
-                        if( findStrings(tempMy,llbehLbl{ALIGN})|| findStrings(tempMy,llbehLbl{SHIFT},llbehLbl{FIX})) 
-                            if( findStrings(tempMz,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempMz,llbehLbl{FIX})) 
-
-                                % All three conditions have been met. Set hlbehStruc for state 1 and 2 to true
-                                hlbehStruc(3) = 1;
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        %%  SNAP INSERTION    
-        %   Conditions: Fz = CT+AL and FxFyMxMyMz = ALIGN+FIX || SH + FIX || FX
-
-        % Save the contents of Fx, Fy, Mx
-        tempFx=stateLbl{matState,Fx}; tempFy=stateLbl{matState,Fy}; tempFz=stateLbl{matState,Fz};
-        tempMx=stateLbl{matState,Mx}; tempMy=stateLbl{matState,My}; tempMz=stateLbl{matState,Mz};
-
-        if( findStrings(tempFx,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempFx,llbehLbl{FIX})) 
-            if( findStrings(tempFy,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempFy,llbehLbl{FIX})) 
-                if( findStrings(tempFz,llbehLbl{CONTACT},llbehLbl{ALIGN})) 
-                    if( findStrings(tempMx,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempMx,llbehLbl{FIX})) 
-                        if( findStrings(tempMy,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempMy,llbehLbl{FIX})) 
-                            if( findStrings(tempMz,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempMz,llbehLbl{FIX})) 
-
-                                % All three conditions have been met. Set hlbehStruc for state 1 and 2 to true
-                                hlbehStruc(4) = 1;
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        %%  MATING    
-        %   Conditions: Fz = FX
-
-        % Save the contents of Fx, Fy, Mx
-        tempFx=stateLbl{state5,Fx}; tempFy=stateLbl{state5,Fy}; tempFz=stateLbl{state5,Fz};
-        tempMx=stateLbl{state5,Mx}; tempMy=stateLbl{state5,My}; tempMz=stateLbl{state5,Mz};
-
-        if( findStrings(tempFx,llbehLbl{FIX}) ) 
-            if( findStrings(tempFy,llbehLbl{FIX}) ) 
-                if( findStrings(tempFz,llbehLbl{FIX}) ) 
-                    if( findStrings(tempMx,llbehLbl{FIX}) ) 
-                        if( findStrings(tempMy,llbehLbl{FIX}) ) 
-                            if( findStrings(tempMz,llbehLbl{FIX}) ) 
-
-                                % All three conditions have been met. Set hlbehStruc for state 1 and 2 to true
-                                hlbehStruc(5) = 1;
-                            end
-                        end
-                    end
-                end
-            end
-        end
+%         
+%         %% (1) Create a state x ForceElments Cell array structure
+% 
+%         % Keep a counter of which labels belong to a given state
+%         llLabelVector = zeros(4,1);                  % Empirically determined size with int inputs.
+% 
+%         % Fill each state's dimension with llbeh sequence of labels. 
+%         for state=1:StateNum
+% 
+%         %% Define TIME limits of prevprev/prev/current/next/nextnext states
+%         % If only 1 state, a behavior can only be in: current state.
+%         % 2 states: behavior can be in: previous state and current state, or current state and next state.
+%         % 3 states: prevprev/prev/curr or prev/curr/next or curr/next/nextnext
+%         % 4 states: ppp/pp/p/c or pp/p/c/n or p/c/n/nn or c/n/nn/nnn
+%         % Visualization
+%         % _____________________________________________
+%         % |          |          |          |          |
+%         % sApp      eApp
+%         %           sRot       eRod
+%         %                      sIns       eIns
+%         %                                 sMat        eMat
+%             currStateEndTime   = stateData(state+1);        % Add 1 to capture the ENDING time
+% 
+%             % PrevPrevState
+%             if(state<3),                prevprevStateEndTime    = 0;
+%             else                        prevprevStateEndTime    = stateData(state-2);
+%             end
+% 
+%             % PrevState
+%             if(state<2),                prevStateEndTime        = 0;
+%             else                        prevStateEndTime        = stateData(state);     
+%             end        
+% 
+%             % NextState (only applies if there are at laest 3 entries)
+%             if(StateNum>=3)
+%                 if(StateNum-state>=2),    nextStateEndTime      = stateData(state+2);  % Do this computation if the total number of states is at least 2 numbers bigger than our current state. Before we had the following line that now has been updated: if(state < StateNum)
+%                 elseif(state == StateNum),nextStateEndTime      = currStateEndTime;
+%                 end
+%             end
+% 
+%             % NextNextState
+%             if(StateNum>=4)
+%                 if(StateNum-state>=3),    nextnextStateEndTime  = stateData(state+3);    % Do this if ther eare at least 3 more states than current state. Before we had the following line: if(state < StateNum-1)
+%                 elseif(state == StateNum),nextnextStateEndTime  = nextStateEndTime;
+%                 end
+%             end
+% 
+% 
+%             %% For each AXIS FxyzMxyz, extract the labels according to time
+%             for axis=1:NumForceAxis
+% 
+%                 % 1. Extract the llbehStruc data for each of the six dimensions
+%                 llbehStruc = llbehFM(:,:,axis);
+% 
+%                 % 2. For each label in llbehStruc. Traversing the structure. 
+%                 for index=1:strucSize(axis,1)    
+% 
+%                     % 3. Extract a time vector
+%                     timeVec = [llbehStruc(index,T1S:T2E)];
+%                     minTime = min(timeVec);
+%                     maxTime = max(timeVec);      
+%                     if(maxTime>8.3)
+%                         maxTime=8.3;
+%                     end
+% 
+%                     % Get state limits
+%                     for stateTime=1:length(stateData)-1;
+%                         % Check to see in which state the min time starts.
+%                         s1 = stateData(stateTime);
+%                         s2 = stateData(stateTime+1);
+%                         % Lowerbound 
+%                         if(minTime>=s1 && minTime <= s2)
+%                             lowerState = stateTime;
+%                         end
+%                         % Upperbound
+%                         if(maxTime>=s1 && maxTime <= s2)
+%                             upperState = stateTime;
+%                         end                    
+%                     end
+% 
+%                     %% Put in stateLbl
+%                     for tt=lowerState:upperState
+% 
+%                         % Just make a copy of the current state we are in to
+%                         % avoid repetion in future states
+%                         if(tt==state)
+%                             % Compute length of labels in desired state
+%                             curLen = length(stateLbl(tt,axis));
+% 
+%                             % Copy current StateLbl to temp cell
+%                             temp = stateLbl(tt,axis);
+% 
+%                             % Place the new label in temp
+%                             temp(1,curLen+1) = llbehStruc(index,1);
+%                             
+%                             % Copy back to stateLbl
+%                             stateLbl(tt,axis) = temp;
+%                         end
+%                     end
+% 
+% 
+%                 end
+%             end
+%         end 
+% 
+%         %% (2) Look for patterned sequence of low-level behaviors to determine if hlbeh's are present
+% 
+%         Fx=1;Fy=2;Fz=3;Mx=4;My=5;Mz=6;
+%         state2=2; snapState=3; matState=4; state5=5;
+%         %%  Rotation (State 2). Conditions:
+%         %       Fy -> PL   
+%         %       Fz-> FX (with value not equal to zero)  
+%         %       Mx -> ALIGN
+% 
+%         % Save the contents of Fy, Fz, Mx in cell arrays for PA10 Robot
+%         tempFy=stateLbl{state2,Fy}; tempFz=stateLbl{state2,Fz}; tempMx=stateLbl{state2,Mx};
+% 
+%         % Look for conditions    
+%         if(findStrings(tempFy,llbehLbl{PULL}))
+%             if(findStrings(tempFz,llbehLbl{FIX}))
+%                 if(findStrings(tempMx,llbehLbl{ALIGN}))
+%                     % All three conditions have been met. Set hlbehStruc for state 1 and 2 to true
+%                     hlbehStruc(1:2) = 1;
+%                 end
+%             end
+%         end
+% 
+%         %%  ALIGNMENT
+%         %   Conditions: AL || SH + FX to show up in all axes (in our present case Fxyz, Mxyz). 
+%         %   However, the moment axis corresponding to the direction of motion in which 
+%         %   the insertion is taking place (Mz) could have just a FX reference or ALIGN->FX instead. 
+% 
+%         % Save the contents of Fx, Fy, Mx
+%         tempFx=stateLbl{snapState,Fx}; tempFy=stateLbl{snapState,Fy}; tempFz=stateLbl{snapState,Fz};
+%         tempMx=stateLbl{snapState,Mx}; tempMy=stateLbl{snapState,My}; tempMz=stateLbl{snapState,Mz};
+% 
+%         if( findStrings(tempFx,llbehLbl{ALIGN})|| findStrings(tempFx,llbehLbl{SHIFT},llbehLbl{FIX})) 
+%             if( findStrings(tempFy,llbehLbl{ALIGN})|| findStrings(tempFy,llbehLbl{SHIFT},llbehLbl{FIX})) 
+%                 if( findStrings(tempFz,llbehLbl{ALIGN})|| findStrings(tempFz,llbehLbl{SHIFT},llbehLbl{FIX})) 
+%                     if( findStrings(tempMx,llbehLbl{ALIGN})|| findStrings(tempMx,llbehLbl{SHIFT},llbehLbl{FIX})) 
+%                         if( findStrings(tempMy,llbehLbl{ALIGN})|| findStrings(tempMy,llbehLbl{SHIFT},llbehLbl{FIX})) 
+%                             if( findStrings(tempMz,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempMz,llbehLbl{FIX})) 
+% 
+%                                 % All three conditions have been met. Set hlbehStruc for state 1 and 2 to true
+%                                 hlbehStruc(3) = 1;
+%                             end
+%                         end
+%                     end
+%                 end
+%             end
+%         end
+% 
+%         %%  SNAP INSERTION    
+%         %   Conditions: Fz = CT+AL and FxFyMxMyMz = ALIGN+FIX || SH + FIX || FX
+% 
+%         % Save the contents of Fx, Fy, Mx
+%         tempFx=stateLbl{matState,Fx}; tempFy=stateLbl{matState,Fy}; tempFz=stateLbl{matState,Fz};
+%         tempMx=stateLbl{matState,Mx}; tempMy=stateLbl{matState,My}; tempMz=stateLbl{matState,Mz};
+% 
+%         if( findStrings(tempFx,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempFx,llbehLbl{FIX})) 
+%             if( findStrings(tempFy,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempFy,llbehLbl{FIX})) 
+%                 if( findStrings(tempFz,llbehLbl{CONTACT},llbehLbl{ALIGN})) 
+%                     if( findStrings(tempMx,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempMx,llbehLbl{FIX})) 
+%                         if( findStrings(tempMy,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempMy,llbehLbl{FIX})) 
+%                             if( findStrings(tempMz,llbehLbl{ALIGN},llbehLbl{FIX}) || findStrings(tempMz,llbehLbl{FIX})) 
+% 
+%                                 % All three conditions have been met. Set hlbehStruc for state 1 and 2 to true
+%                                 hlbehStruc(4) = 1;
+%                             end
+%                         end
+%                     end
+%                 end
+%             end
+%         end
+% 
+%         %%  MATING    
+%         %   Conditions: Fz = FX
+% 
+%         % Save the contents of Fx, Fy, Mx
+%         tempFx=stateLbl{state5,Fx}; tempFy=stateLbl{state5,Fy}; tempFz=stateLbl{state5,Fz};
+%         tempMx=stateLbl{state5,Mx}; tempMy=stateLbl{state5,My}; tempMz=stateLbl{state5,Mz};
+% 
+%         if( findStrings(tempFx,llbehLbl{FIX}) ) 
+%             if( findStrings(tempFy,llbehLbl{FIX}) ) 
+%                 if( findStrings(tempFz,llbehLbl{FIX}) ) 
+%                     if( findStrings(tempMx,llbehLbl{FIX}) ) 
+%                         if( findStrings(tempMy,llbehLbl{FIX}) ) 
+%                             if( findStrings(tempMz,llbehLbl{FIX}) ) 
+% 
+%                                 % All three conditions have been met. Set hlbehStruc for state 1 and 2 to true
+%                                 hlbehStruc(5) = 1;
+%                             end
+%                         end
+%                     end
+%                 end
+%             end
+%         end
 
 
     %% Code for HIRO Simulation
@@ -531,6 +534,14 @@ function [hlbehStruc,avgMyData,snapVerificationSuccess,bool_fcData] = hlbehCompo
 %             % Check for presence of labels in desired axis and states
 %             llbIsInAxis = checkLLBExistance( stateLbl, approachState, llbehLbl, stateLLBstruc);
 %             if(llbIsInAxis); hlbehStruc(1,approachState)=1; end
+        else  % DQ adding in case that Output argument "avgMyData" (and maybe others) not assigned during call to hlbehComposition_new
+            a_numSet      =4;
+            a_numParams   =2;
+            avgMyData = zeros(a_numSet,a_numParams);
+            b_numSet      =3;
+            b_numParams   =7;
+            bool_fcData = zeros(b_numSet,b_numParams);
+
         end
         %%  ROTATION (State 2). Conditions:
         %       Fx-> FX (with value not equal to zero)    

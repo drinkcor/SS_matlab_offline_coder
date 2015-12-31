@@ -217,7 +217,9 @@ function [statData,rHandle,gradLabels] = fitRegressionCurves(fPath,StrategyType,
                     end
 %%                  % v) Plot data
                     if(DB_PLOT)
-                        rHandle=plotRegressionFit(Time,dataFit,Type,pHandle,TL,BL,FolderName,forceData,stateData);                                
+                        rHandle=plotRegressionFit(Time,dataFit,Type,pHandle,TL,BL,FolderName,forceData,stateData);
+                    else
+                        rHandle=0;
                     end
 
 %%                  % Wrap Up 
@@ -267,7 +269,9 @@ function [statData,rHandle,gradLabels] = fitRegressionCurves(fPath,StrategyType,
 
 %%          % v) Plot data
             if(DB_PLOT)
-                rHandle=plotRegressionFit(Time,dataFit,Type,pHandle,TL,BL,FolderName,forceData,stateData);                                
+                rHandle=plotRegressionFit(Time,dataFit,Type,pHandle,TL,BL,FolderName,forceData,stateData); 
+            else
+                rHandle=0;
             end
 
             % Get out of the while loop

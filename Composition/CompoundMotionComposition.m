@@ -71,8 +71,6 @@ function motComps=CompoundMotionComposition(StrategyType,statData,saveData,gradL
 %--------------------------------------------------------------------------
 %% Initialization
     %----------------------------------------------------------------------
-    CLEANUP_CYCLES = MC_COMPS_CLEANUP_CYCLES;
-    %----------------------------------------------------------------------
     motCompsIndex   = 1;                        % Index for motion compositions
     dataSz          = 11;                        % Composition Data: [class,avgMagVal,rmsVal,AmplitudeVal,glabel1,glabel2,t1Index,t2Index,tAvg]. See primMatchEval.
     
@@ -155,10 +153,10 @@ function motComps=CompoundMotionComposition(StrategyType,statData,saveData,gradL
 %% E. CleanUp the motion compositions
     % PA10 Pivot Approach
     if(~strcmp(StrategyType,'HSA') && ~strcmp(StrategyType,'ErrorCharac'))
-        CleanLoops = CLEANUP_CYCLES;
+        CleanLoops = 4; %CleanLoops = MC_COMPS_CLEANUP_CYCLES; Beacuse global variable will be unuseful during parfor.
     % HIRO Side Approach
     else
-        CleanLoops = CLEANUP_CYCLES;
+        CleanLoops = 4; %CleanLoops = MC_COMPS_CLEANUP_CYCLES; Beacuse global variable will be unuseful during parfor.
     end
     
     % Issue cleaning

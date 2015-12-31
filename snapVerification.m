@@ -5,6 +5,8 @@
 % taxonomy (RCBHT). Also includes a probabilistic version called
 % probabilistic RCBHT or pRCBHT. 
 %
+% Add parrallel computing (parfor) on Dec 31th 2015
+%
 % This is currently done offline. 
 %
 % This function does the following:
@@ -175,7 +177,12 @@ figure;
     % Iterate through each of the six force-moment plots Fx Fy Fz Mx My Mz
     % generated in snapData3 and superimpose regressionfit lines in each of
     % the diagrams. 
-    for axisIndex=first:last
+    
+%% Parrellel computation using parfor  --DQ adding  
+    llbehLbl    = [ 1,   2,   3,   4,   5,   6,   7,  8];
+    delete(gcp);                                     % Terminate the existing session
+    parpool(2);
+    parfor axisIndex = first:last 
         if(PRIM_LAYER)
             wStart  = 1;                            % Initialize index for starting analysis
 
@@ -210,20 +217,8 @@ figure;
                 % If you want to save the .mat of motComps, set saveData to 1. 
                 saveData = 0;
                 motComps = CompoundMotionComposition(StrategyType,statData,saveData,gradLabels,curHandle,TL(axisIndex),BL(axisIndex),fPath,StratTypeFolder,FolderName,pType,stateData); %TL(axisIndex+2) skips limits for the first two snapJoint suplots              
-            
-                if(axisIndex==1)
-                    MCFx = motComps;
-                elseif(axisIndex==2)
-                    MCFy = motComps;
-                elseif(axisIndex==3)
-                    MCFz = motComps;
-                elseif(axisIndex==4)
-                    MCMx = motComps;
-                elseif(axisIndex==5)
-                    MCMy = motComps;
-                elseif(axisIndex==6)
-                    MCMz = motComps;
-                end     
+                % Copy to a fixed structure(sliced varialbe in parfor) for post-processing  
+                MCtp{axisIndex} = motComps;
             end
 
 %% D)       Generate the low-level behaviors
@@ -232,23 +227,87 @@ figure;
                 % Combine motion compositions to produce low-level behaviors
                 [llbehStruc,llbehLbl] = llbehComposition(StrategyType,motComps,curHandle,TL(axisIndex),BL(axisIndex),fPath,StratTypeFolder,FolderName,pType);                          
                 
-%% E)          Copy to a fixed structure for post-processing        
-                if(axisIndex==1)
-                    llbehFx = llbehStruc;
-                elseif(axisIndex==2)
-                    llbehFy = llbehStruc;
-                elseif(axisIndex==3)
-                    llbehFz = llbehStruc;
-                elseif(axisIndex==4)
-                    llbehMx = llbehStruc;
-                elseif(axisIndex==5)
-                    llbehMy = llbehStruc;
-                elseif(axisIndex==6)
-                    llbehMz = llbehStruc;
-                end
+%% E)          Copy to a fixed structure(sliced varialbe in parfor) for post-processing        
+                llbehtp{axisIndex} = llbehStruc;
             end
         end                                
     end % End all axes
+    
+%% Serial computing    
+%     for axisIndex=first:last
+%         if(PRIM_LAYER)
+%             wStart  = 1;                            % Initialize index for starting analysis
+% 
+%             % Determine how many handles
+%             if(last-first==0)
+%                 pHandle = 0;
+%             else
+%                 pHandle = axesHandles(axisIndex);           % Retrieve the handle for each of the force curves
+%             end
+% 
+%             % Determine the type of the plot
+%             pType   = plotType(axisIndex,:);                  % Use curly brackets to retrieve the plotType out of the cell
+% 
+%             % Compute regression curves for each force curve
+%             [statData,curHandle,gradLabels]=fitRegressionCurves(fPath,StrategyType,StratTypeFolder,FolderName,pType,forceData,stateData,wStart,pHandle,TL,BL,axisIndex);        
+% 
+%             if(Optimization==1)
+%                gradientCalibration(fPath,StratTypeFolder,stateData,statData,axisIndex);
+% 
+%                llbBelief=-1;
+%                hlbBelief=-1; % Dummy variables for this segment
+%             end
+%         end     % End PRIMITIVES_LAYER
+%         
+% %% Do the following only if (gradient classification) optimization is turned off
+%         if(Optimization==0) 
+%             
+%             
+% %% C)       Generate the compound motion compositions for each of the six force elements
+% 
+%             if(MC_LAYER)
+%                 % If you want to save the .mat of motComps, set saveData to 1. 
+%                 saveData = 0;
+%                 motComps = CompoundMotionComposition(StrategyType,statData,saveData,gradLabels,curHandle,TL(axisIndex),BL(axisIndex),fPath,StratTypeFolder,FolderName,pType,stateData); %TL(axisIndex+2) skips limits for the first two snapJoint suplots              
+%             
+%                 if(axisIndex==1)
+%                     MCFx = motComps;
+%                 elseif(axisIndex==2)
+%                     MCFy = motComps;
+%                 elseif(axisIndex==3)
+%                     MCFz = motComps;
+%                 elseif(axisIndex==4)
+%                     MCMx = motComps;
+%                 elseif(axisIndex==5)
+%                     MCMy = motComps;
+%                 elseif(axisIndex==6)
+%                     MCMz = motComps;
+%                 end     
+%             end
+% 
+% %% D)       Generate the low-level behaviors
+%         
+%             if(LLB_LAYER)
+%                 % Combine motion compositions to produce low-level behaviors
+%                 [llbehStruc,llbehLbl] = llbehComposition(StrategyType,motComps,curHandle,TL(axisIndex),BL(axisIndex),fPath,StratTypeFolder,FolderName,pType);                          
+%                 
+% %% E)          Copy to a fixed structure for post-processing        
+%                 if(axisIndex==1)
+%                     llbehFx = llbehStruc;
+%                 elseif(axisIndex==2)
+%                     llbehFy = llbehStruc;
+%                 elseif(axisIndex==3)
+%                     llbehFz = llbehStruc;
+%                 elseif(axisIndex==4)
+%                     llbehMx = llbehStruc;
+%                 elseif(axisIndex==5)
+%                     llbehMy = llbehStruc;
+%                 elseif(axisIndex==6)
+%                     llbehMz = llbehStruc;
+%                 end
+%             end
+%         end                                
+%     end % End all axes
 %%  F) After all axes are finished computing the LLB layer, generate and plot labels for high-level behaviors.
     if(HLB_LAYER)                        
         % Save all llbeh strucs in a structure. One field for each llbeh. This is an
@@ -256,8 +315,10 @@ figure;
         % 2013July: 
         mcFlag=2; llbFlag=3;
         % Each of these structures are mx17, so they can be separated in this way.    
-        [motCompsFM,MCnumElems]     = zeroFill(MCFx,MCFy,MCFz,MCMx,MCMy,MCMz,mcFlag);
-        [llbehFM   ,LLBehNumElems]  = zeroFill(llbehFx,llbehFy,llbehFz,llbehMx,llbehMy,llbehMz,llbFlag);
+        
+        %         % DQ adding
+        [motCompsFM,MCnumElems]     = zeroFill(MCtp{1},MCtp{2},MCtp{3},MCtp{4},MCtp{5},MCtp{6},mcFlag);
+        [llbehFM   ,LLBehNumElems]  = zeroFill(llbehtp{1},llbehtp{2},llbehtp{3},llbehtp{4},llbehtp{5},llbehtp{6},llbFlag);
         
         % Generate the high level behaviors
         [hlbehStruc,fcAvgData,successFlag,boolFCData]=hlbehComposition_new(motCompsFM,MCnumElems,llbehFM,LLBehNumElems,llbehLbl,stateData,axesHandles,TL,BL,fPath,StratTypeFolder,FolderName);    
