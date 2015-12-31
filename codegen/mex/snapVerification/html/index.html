@@ -1,0 +1,519 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Code Generation Report</title>
+<link rel="stylesheet" type="text/css" href="file:////usr/local/MATLAB/R2013a/toolbox/coder/coder/resources/eml_report.css" />
+<link rel="stylesheet" type="text/css" href="file:////usr/local/MATLAB/R2013a/toolbox/coder/coder/resources/jQuery/ui.resizable.css" />
+<link rel="stylesheet" type="text/css" href="file:////home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/codegen/mex/snapVerification/html/index.css" />
+
+<script type="text/javascript" src="file:////usr/local/MATLAB/R2013a/toolbox/coder/coder/resources/jQuery/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="file:////usr/local/MATLAB/R2013a/toolbox/coder/coder/resources/jQuery/jquery-ui-1.7.custom.min.js"></script>
+<script type="text/javascript" src="file:////usr/local/MATLAB/R2013a/toolbox/coder/coder/resources/jQuery/jquery.tablesorter.mod.js"></script>
+<script type="text/javascript" src="file:////usr/local/MATLAB/R2013a/toolbox/coder/coder/resources/jQuery/jquery.hotkeys-0.7.8.js"></script>
+<script type="text/javascript" src="file:////usr/local/MATLAB/R2013a/toolbox/coder/coder/resources/eml_report_interactions.js"></script>
+<script type="text/javascript" src="file:////usr/local/MATLAB/R2013a/toolbox/coder/coder/resources/eml_report_layout.js"></script>
+<script type="text/javascript" src="file:////usr/local/MATLAB/R2013a/toolbox/rtw/rtw/+coder/+report/resources/rtwshrink.js"></script>
+<script type="text/javascript">
+var localizedMessages = {
+    callSelectPrompt: "Select a function call:",
+    callSelectSource: "Calls from this function",
+    callSelectTarget: "Calls to this function",
+    infoForExpression: "Information for the selected expression:",
+    infoForVarHere: "Information for the selected variable:",
+    infoForVarThere: "Information for the selected variable:",
+    infoForVarNone: "This variable does not have information associated with it.",
+    infoForFilter: "Matched {0}/{1} functions, {2}/{3} methods",
+    autoExtrinsicCall: "Only supported within the MATLAB environment."
+};
+var keyBindings = {
+        selectMCodeTab: "Ctrl+m",
+    selectCallStackTab: "Ctrl+k",
+        selectCCodeTab: "Ctrl+c",
+       selectReportTab: "Ctrl+r",
+     selectCenterPanel: "Ctrl+w",
+      selectSummaryTab: "Ctrl+s",
+     selectMessagesTab: "Ctrl+a",
+    selectWatchListTab: "Ctrl+v",
+     selectBuildLogTab: "Ctrl+t"
+};
+var functionInfoTable = {
+ MATLABcode1: "snapVerification1_mcode.html",
+ fpath1: "/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/snapVerification.m",
+ lines1: [1, 99, 340],
+ watch1: "snapVerification1_watch.html",
+ title1: "Function: <span class='functionname'><a title='/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side&nbsp;Approach/matlab/snapVerification.m' class='functionlink' href=\"matlab: open('/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/snapVerification.m')\">snapVerification</a></span>",
+ tcall1: [  ],
+ scall1: [ [ "From line 193 to snapData3", "2#srcline16" ] ],
+ MATLABcode2: "snapData32_mcode.html",
+ fpath2: "/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/Force Plots/snapData3.m",
+ lines2: [1, 16, 195],
+ watch2: "snapData32_watch.html",
+ title2: "Function: <span class='functionname'><a title='/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side&nbsp;Approach/matlab/Force&nbsp;Plots/snapData3.m' class='functionlink' href=\"matlab: open('/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/Force Plots/snapData3.m')\">snapData3</a></span>",
+ tcall2: [ [ "From snapVerification line 193", "1#F2N6:B214" ] ],
+ scall2: [ [ "From line 26 to AssignDir", "3#srcline15" ], [ "From line 37 to loadData", "14#srcline16" ] ],
+ MATLABcode3: "AssignDir3_mcode.html",
+ fpath3: "/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/Utilities/AssignDir.m",
+ lines3: [1, 15, 39],
+ watch3: "AssignDir3_watch.html",
+ title3: "Function: <span class='functionname'><a title='/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side&nbsp;Approach/matlab/Utilities/AssignDir.m' class='functionlink' href=\"matlab: open('/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/Utilities/AssignDir.m')\">AssignDir</a></span>",
+ tcall3: [ [ "From snapData3 line 26", "2#F3N2:B25" ] ],
+ scall3: [  ],
+ MATLABcode14: "loadData14_mcode.html",
+ fpath14: "/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/Utilities/loadData.m",
+ lines14: [1, 16, 94],
+ watch14: "loadData14_watch.html",
+ title14: "Function: <span class='functionname'><a title='/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side&nbsp;Approach/matlab/Utilities/loadData.m' class='functionlink' href=\"matlab: open('/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/Utilities/loadData.m')\">loadData</a></span>",
+ tcall14: [ [ "From snapData3 line 37", "2#F14N5:B49" ] ],
+ scall14: [  ],
+ rootFcnID: "1",
+ firstPage: "1",
+ htmlRoot: "/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side%20Approach/matlab/codegen/mex/snapVerification/html/"
+};
+var scriptInfoTable = {
+ fpath1: "/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/snapVerification.m",
+ fpath2: "/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/Force Plots/snapData3.m",
+ fpath3: "/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/Utilities/AssignDir.m",
+ fpath4: "/usr/local/MATLAB/R2013a/toolbox/eml/lib/matlab/eml/eml_strcmp.m",
+ fpath5: "/usr/local/MATLAB/R2013a/toolbox/eml/lib/matlab/general/ispc.m",
+ fpath6: "/home/vmrguser/MATLAB/SnapSensing/Offline/Encoder/Side Approach/matlab/Utilities/loadData.m",
+ fpath7: "/usr/local/MATLAB/R2013a/toolbox/eml/lib/matlab/lang/fprintf.m",
+ fpath8: "/usr/local/MATLAB/R2013a/toolbox/eml/lib/matlab/elmat/isequal.m",
+ fpath9: "/usr/local/MATLAB/R2013a/toolbox/eml/lib/matlab/eml/eml_isequal_core.m",
+ fpath10: "/usr/local/MATLAB/R2013a/toolbox/eml/lib/matlab/elmat/isnan.m"
+};
+</script>
+</head>
+<body>
+
+<div class="west">
+<ul class="ui-tabs-nav">
+<li class="ui-tabs-nav-item ui-tabs-selected"><span class="tab-link" id="MATLABcode"><span>MATLAB code</span></span></li>
+<li class="ui-tabs-nav-item"><span class="tab-link" id="callstack"><span>Call stack</span></span></li>
+<li class="ui-tabs-nav-item"><span class="tab-link" id="ccode"><span>C code</span></span></li>
+</ul>
+<div id="MATLABcodebody" class="ui-tabs-panel">
+<!-- Begin Filter -->
+<div class="grayline methodset" onclick="filterClick(event);">
+<a class="collapsed">Filter</a>
+</div>
+<div id="filterbody" class="hidden">
+<table class="myfunc-filter-tbl">
+<tr>
+<td title="Use this filter to display only functions and methods that contain variables or expressions with the specified attributes." colspan="2" class="checkbox">
+<div class="myfunc-filterby-chk"><input type="checkbox" class="filterenable" />
+<div class="filter-enable-lbl">Filter functions and methods</div></div></td></tr><tr>
+<td class="label"><div class="myfunc-filterby-lbl">Filter by:</div></td>
+<td class="select">
+<div class="filters">
+<select class="myfunc-filterby">
+<option id="size">Size</option>
+<option id="complex">Complexity</option>
+<option id="class">Class</option>
+</select>
+</div>
+</td>
+</tr>
+
+<tr>
+<td class="label"><div class="myfunc-filterstr-lbl">Filter:</div></td>
+<td class="input"><div>
+
+<div class="size">
+<select class="myfunc-filter size">
+<option value="1 2 14">1 x 1</option>
+<option value="2 14">1 x 53</option>
+<option value="1">1 x <b>:</b>128</option>
+<option value="2 3 14">1 x <b>:</b>?</option>
+</select>
+</div>
+
+<div class="complex">
+<select class="myfunc-filter complex">
+<option value="">Complex values</option>
+<option value="1 2 14">Real values</option>
+</select>
+</div>
+<!-- Begin Class Filter -->
+<div class="class">
+<select class="myfunc-filter class">
+<option value="1 2 3 14">char</option>
+<option value="1 2 14">double</option>
+<option value="1 2 14">unknown</option>
+</select>
+</div>
+<!-- End Class Filter -->
+</div>
+</td>
+</tr>
+</table>
+<div class="myfunc-count"></div>
+</div>
+<!-- End Filter -->
+<div class="grayline methodset" onmouseover="callTreeMouseOver(event);" onmouseout="callTreeMouseOut(event);" onclick="functionSetClick(event);">
+<a class="expanded">Functions</a>
+</div>
+<!-- Begin Function Tree -->
+<div id="functiontreebody">
+<div class="functionwrapper" onmouseover="callTreeMouseOver(event);" onmouseout="callTreeMouseOut(event);" onclick="functionTreeClick(event);">
+<ol class="tree">
+<!-- Begin Function Tree Roots -->
+<li class="leaf  passed"><a href="#" class="fcn" id="F3N2:F1">AssignDir</a></li>
+<li class="leaf  failed"><a href="#" class="fcn" id="F14N5:F2">loadData</a></li>
+<li class="leaf  failed"><a href="#" class="fcn" id="F2N6:F3">snapData3</a></li>
+<li class="leaf  failed"><a href="#" class="fcn" id="F1N7:F4">snapVerification</a></li>
+<!-- End Function Tree Roots -->
+</ol>
+<!-- Function Tree Nodes -->
+<div class="functiontreenodes hidden">
+</div>
+<!-- End Function Tree Nodes -->
+</div>
+</div>
+<!-- End Function Tree -->
+</div>
+<!-- Begin Call Tree -->
+<div id="callstackbody" class="ui-tabs-panel hidden">
+<div class="treewrapper" onmouseover="callTreeMouseOver(event);" onmouseout="callTreeMouseOut(event);" onclick="callTreeClick(event);">
+<ol class="tree">
+<!-- Call Tree Root -->
+<li class="node collapsed failed"><a href="#" class="fcn" id="F1N7:L1">snapVerification</a>
+<ul>
+<li class="node collapsed failed"><a href="#" class="fcn" id="F2N6:L2">snapData3</a></li>
+</ul>
+</li>
+</ol>
+<!-- Call Tree Nodes -->
+<div class="callstacknodes hidden">
+<ol class="callstacknode" id="callstacknode1">
+
+<li class="node collapsed failed"><a href="#" class="fcn" id="F1N7:l1">snapVerification</a>
+<ul>
+<li class="node collapsed failed"><a href="#" class="fcn" id="F2N6:l2">snapData3</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode2">
+
+<li class="node collapsed failed"><a href="#" class="fcn" id="F2N6:l3">snapData3</a>
+<ul>
+<li class="leaf passed"><a href="#" class="fcn" id="F3N2:l4">AssignDir</a></li>
+<li class="leaf failed"><a href="#" class="fcn" id="F14N5:l5">loadData</a></li>
+</ul>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode3">
+
+<li class="leaf passed"><a href="#" class="fcn" id="F3N2:l6">AssignDir</a>
+</li>
+</ol>
+<ol class="callstacknode" id="callstacknode14">
+
+<li class="leaf failed"><a href="#" class="fcn" id="F14N5:l7">loadData</a>
+</li>
+</ol>
+
+</div>
+</div>
+</div>
+<!-- End Call Tree -->
+<!-- Begin C Code -->
+<div id="ccodebody" class="ui-tabs-panel hidden">
+</div>
+<!-- End C Code -->
+</div>
+<div class="aux hidden">
+<div class="tooltips">
+<div class="tooltip" id="TT1"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT2"><table class="tooltip"><tr><th>Size</th><td>1 x <b>:</b>128</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT3"><table class="tooltip"><tr><th>Size</th><td>1 x <b>:</b>?</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT4"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT5"><table class="tooltip"><tr><th>Size</th><td>1 x 2</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT6"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>logical</td></tr></table></div>
+<div class="tooltip" id="TT7"><table class="tooltip"><tr><th>Size</th><td>1 x 2</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT8"><table class="tooltip"><tr><th>Size</th><td>1 x 3</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT9"><table class="tooltip"><tr><th>Size</th><td>1 x 11</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT10"><table class="tooltip"><tr><th>Size</th><td>1 x 51</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT11"><table class="tooltip"><tr><th>Size</th><td>1 x 53</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT12"><table class="tooltip"><tr><th>Size</th><td>1 x 26</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT13"><table class="tooltip"><tr><th>Size</th><td>1 x 25</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT14"><table class="tooltip"><tr><th>Size</th><td>1 x 2</td></tr><tr><th>Class</th><td>cell</td></tr></table></div>
+<div class="tooltip" id="TT15"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>coder.internal.indexInt</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT16"><table class="tooltip"><tr><th>Size</th><td>1 x 7</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT17"><table class="tooltip"><tr><th>Size</th><td>1 x 121</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT18"><table class="tooltip"><tr><th>Size</th><td>1 x 0</td></tr><tr><th>Class</th><td>cell</td></tr></table></div>
+<div class="tooltip" id="TT19"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>mxArray</td></tr></table></div>
+<div class="tooltip" id="TT20"><table class="tooltip"><tr><th>Size</th><td>0 x 0</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT21"><table class="tooltip"><tr><th>Size</th><td>0 x 0</td></tr><tr><th>Class</th><td>double</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT22"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>int32</td></tr><tr><th>Complex</th><td>No</td></tr></table></div>
+<div class="tooltip" id="TT23"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>coder.opaque</td></tr></table></div>
+<div class="tooltip" id="TT24"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT25"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT26"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT27"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT28"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT29"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT30"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT31"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT32"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT33"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT34"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT35"><table class="tooltip"><tr><th>Size</th><td>1 x 57</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT36"><table class="tooltip"><tr><th>Size</th><td>1 x 44</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT37"><table class="tooltip"><tr><th>Size</th><td>1 x 34</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT38"><table class="tooltip"><tr><th>Size</th><td>1 x 27</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT39"><table class="tooltip"><tr><th>Size</th><td>1 x 0</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT40"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT41"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>unknown</td></tr></table></div>
+<div class="tooltip" id="TT42"><table class="tooltip"><tr><th>Size</th><td>1 x 12</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT43"><table class="tooltip"><tr><th>Size</th><td>1 x 10</td></tr><tr><th>Class</th><td>char</td></tr></table></div>
+<div class="tooltip" id="TT44"><table class="tooltip"><tr><th>Size</th><td>1 x 1</td></tr><tr><th>Class</th><td>cell</td></tr></table></div>
+</div>
+</div>
+
+<div class="south">
+<ul class="ui-tabs-nav">
+<li class="ui-tabs-nav-item"><span class="tab-link" id="summary"><span>Summary</span></span></li>
+<li class="ui-tabs-nav-item ui-tabs-selected"><span class="tab-link" id="messages"><span>All Messages (25)</span></span></li>
+<li class="ui-tabs-nav-item"><span class="tab-link" id="watchlist"><span>Variables</span></span></li>
+<li class="ui-tabs-nav-item hidden"><span class="tab-link" id="watchload"><span>Variables</span></span></li>
+</ul>
+
+<!-- Compilation Summary -->
+<div id="summarybody" class="ui-tabs-panel hidden">
+<table cellpadding="1" cellspacing="4">
+<tr><td>MATLAB code generation attempted on:</td><td>05-Dec-2013 17:28:59</td></tr>
+<tr><td>Coding target:</td><td>C MEX Function</td></tr>
+<tr><td>Number of errors:</td><td><a href="javascript:selectMessagesTab();">25</a></td></tr>
+<tr><td>Number of warnings:</td><td><a href="javascript:selectMessagesTab();">0</a></td></tr>
+</table>
+<p/><p/><table>
+<tr><td><b>Tell Us What You Think</b></td></tr>
+<tr><td>We value your feedback. Please take a few minutes to answer this short questionnaire regarding the Code Generation Report.</td></tr>
+<tr><td><a href="matlab: web('http://www.customersat3.com/TakeSurvey.asp?si=ELu7GTnTYtk%3D','-browser');">&gt;&gt;Provide Feedback</a></td></tr>
+</table>
+</div>
+
+<!-- Message Table -->
+<div id="messagesbody" class="ui-tabs-panel">
+<table class="grid" summary="This table lists the messages produced during code generation." cellspacing="0" cellpadding="6">
+<thead>
+<tr>
+<th id="msgorder" scope="col"><div class="d1"><div class="d2"><a href="#">Order</a></div></div></th>
+<th id="msgtype" scope="col"><div class="d1"><div class="d2"><a href="#">Type</a></div></div></th>
+<th id="function" scope="col"><div class="d1"><div class="d2"><a href="#">Function</a></div></div></th>
+<th id="location" scope="col"><div class="d1"><div class="d2"><a href="#">Line</a></div></div></th>
+<th id="text" scope="col"><div class="d1"><div class="d2"><a href="#">Description</a></div></div></th>
+</tr>
+</thead>
+<tbody onmouseover="messagesMouseOver(event);" onmouseout="messagesMouseOut(event);" onclick="messagesClick(event);"">
+<tr class="message error" id="M10F14">
+<td class="msgorder" headers="msgorder"><a href="#">1</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>38</div></td>
+<td class="text" headers="text"><div>The function 'strcat' is not supported for standalone code generation. See the documentation for coder.extrinsic to learn how you can use this function in simulation.</div></td>
+</tr>
+<tr class="message error" id="M11F14">
+<td class="msgorder" headers="msgorder"><a href="#">2</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>39</div></td>
+<td class="text" headers="text"><div>The function 'strcat' is not supported for standalone code generation. See the documentation for coder.extrinsic to learn how you can use this function in simulation.</div></td>
+</tr>
+<tr class="message error" id="M12F14">
+<td class="msgorder" headers="msgorder"><a href="#">3</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>49</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'ForceData'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M13F14">
+<td class="msgorder" headers="msgorder"><a href="#">4</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>50</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'StateData'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M14F14">
+<td class="msgorder" headers="msgorder"><a href="#">5</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>57</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'SD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M15F14">
+<td class="msgorder" headers="msgorder"><a href="#">6</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>57</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'rSD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M16F14">
+<td class="msgorder" headers="msgorder"><a href="#">7</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>57</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'unusedU0'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M17F14">
+<td class="msgorder" headers="msgorder"><a href="#">8</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>58</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'rSD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M18F14">
+<td class="msgorder" headers="msgorder"><a href="#">9</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>59</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'SD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M19F14">
+<td class="msgorder" headers="msgorder"><a href="#">10</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>62</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'FD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M20F14">
+<td class="msgorder" headers="msgorder"><a href="#">11</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>65</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'endTime'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M21F14">
+<td class="msgorder" headers="msgorder"><a href="#">12</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>68</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'FD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M22F14">
+<td class="msgorder" headers="msgorder"><a href="#">13</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>75</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'FD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M23F14">
+<td class="msgorder" headers="msgorder"><a href="#">14</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>80</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'rSD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M24F14">
+<td class="msgorder" headers="msgorder"><a href="#">15</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>81</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'FD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M25F14">
+<td class="msgorder" headers="msgorder"><a href="#">16</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>loadData</div></td>
+<td class="location" headers="location"><div>88</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'rSD'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M2F2">
+<td class="msgorder" headers="msgorder"><a href="#">17</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>snapData3</div></td>
+<td class="location" headers="location"><div>37</div></td>
+<td class="text" headers="text"><div>Function call failed.</div></td>
+</tr>
+<tr class="message error" id="M3F2">
+<td class="msgorder" headers="msgorder"><a href="#">18</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>snapData3</div></td>
+<td class="location" headers="location"><div>37</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'angleData'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M4F2">
+<td class="msgorder" headers="msgorder"><a href="#">19</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>snapData3</div></td>
+<td class="location" headers="location"><div>37</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'forceData'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M5F2">
+<td class="msgorder" headers="msgorder"><a href="#">20</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>snapData3</div></td>
+<td class="location" headers="location"><div>37</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'jointsnapData'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M6F2">
+<td class="msgorder" headers="msgorder"><a href="#">21</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>snapData3</div></td>
+<td class="location" headers="location"><div>37</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'stateData'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M7F2">
+<td class="msgorder" headers="msgorder"><a href="#">22</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>snapData3</div></td>
+<td class="location" headers="location"><div>49</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'forceData'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message error" id="M8F2">
+<td class="msgorder" headers="msgorder"><a href="#">23</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>snapData3</div></td>
+<td class="location" headers="location"><div>49</div></td>
+<td class="text" headers="text"><div>Undefined function or variable 'TIME_LIMIT_PERC'. The first assignment to a local variable determines its class.</div></td>
+</tr>
+<tr class="message fatal" id="M9F2">
+<td class="msgorder" headers="msgorder"><a href="#">24</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>snapData3</div></td>
+<td class="location" headers="location"><div>49</div></td>
+<td class="text" headers="text"><div>Error limit reached.  Suppressing further error messages.</div></td>
+</tr>
+<tr class="message fatal" id="M1F1">
+<td class="msgorder" headers="msgorder"><a href="#">25</a></td>
+<td class="failed" headers="msgtype"></td>
+<td class="function" headers="function"><div>snapVerification</div></td>
+<td class="location" headers="location"><div>193</div></td>
+<td class="text" headers="text"><div>Error limit reached.  Suppressing further error messages.</div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Watchlist Table -->
+<div id="watchlistbody" class="ui-tabs-panel hidden">
+</div>
+<div id="watchloadbody" class="ui-tabs-panel hidden">
+Loading Variables table ...
+</div>
+
+</div>
+<!-- Begin MATLAB Code Panel -->
+<div class="center">
+<div class="center-title">
+<div class="ui-tabs-nav-item ui-tabs-selected">
+<span class="functiontitle">
+</span>
+<!-- Begin Call Sites -->
+<span id="callsiteselecttable" class="call-sites-tbl">
+<span id="callsiteselectlabel" class="filtered">Calls:</span>
+<select id="callsiteselect" onchange="callSiteChange(event)">
+<option value="callsiteprompt">Select a function call:</option>
+</select>
+</span>
+<!-- End Call Sites -->
+</div>
+</div>
+<div class="ui-tabs-panel">
+<div class="code" onmouseover="mcodeMouseOver(event);" onmouseout="mcodeMouseOut(event);"onclick="mcodeClick(event);">
+</div>
+</div>
+</div>
+<!-- End MATLAB Code Panel -->
+</body>
+</html>
