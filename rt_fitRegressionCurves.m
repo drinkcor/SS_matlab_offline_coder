@@ -66,7 +66,7 @@ function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCur
 
     % Size
     window_length       = 5;                        % Length of window used to analyze the data
-    
+     
     % Thresholds
     if(~strcmp(StrategyType,'HSA') && ~strcmp(StrategyType,'ErrorCharac'))
         GoodFitThreshold    = 0.70;                 % Correlation coefficient USed to determine when to start a new data fit
