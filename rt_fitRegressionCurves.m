@@ -47,19 +47,13 @@
 % real-time: delete some parameters about plotting, pHandle, TL, BL.
 % 2016.7.7
 %**************************************************************************
-function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCurves(Wren_loc,localIndex,statData,segmentIndex,fPath,StrategyType,StratTypeFolder,FolderName,Type,dataFit_pre,wStart,marker,rate,index)
+function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCurves(Wren_loc,statData,segmentIndex,StrategyType,FolderName,Type,dataFit_pre,wStart,marker,rate,index)
 
 
 %% Initialize variables
-    % Globals
-    global DB_WRITE;                                % Write to file.
-    global DB_DEBUG;                                % Save statData.mat 
                                  
     CORREL = 0; RSQ = 1;                            % 0 used for correlation coefficient, 1 used for R^2 
     WHATCOEFF = RSQ;                                % Select which coefficient you want to use for thresholding. Adjust threshold value accordingly
-    
-    %global write2FileFlag; 
-    write2FileFlag = true;                          % Used to set a date on file
     
     % Allocate
     FileName            = '';
@@ -99,14 +93,15 @@ function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCur
     elseif(strcmp(Type,'Mz'));       forceIndex = 7;    
     end  
     
-    % the process won't be execute unless there is enough data for fitting.
-    if (marker+window_length <= localIndex)
-        
         windowIndex = marker+window_length;
         Range = wStart:windowIndex;
-        Time  = (1/rate) * Wren_loc(Range,1);          % Time indeces that we are working with
+        Time  = (Range)'; % Wren_loc(Range,1);          % Time indeces that we are working with
         Data  = Wren_loc(Range,forceIndex); % Corresponding force data for a given force element in a given window
-
+            
+        fprintf(' %f ',Range(1)); fprintf(' %f ',Range(length(Range)));
+        fprintf(' %f ',Wren_loc(Range(1),1)); fprintf(' %f ',Wren_loc(Range(length(Range)),1));
+        fprintf(' %f ',Wren_loc(Range(1),forceIndex)); fprintf(' %f ',Wren_loc(Range(length(Range)),forceIndex));
+        
 %%      % b) Fit data with a linear polynomial. Retrieve coefficients. 
         polyCoeffs  = polyfit(Time,Data,1);            % First-order fit
     
@@ -146,8 +141,8 @@ function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCur
                 rsq = 1 - SSresid/SStotal;              % Variance in yfit over variance in y. 
 
                 % Check for NaN condition
-                if(isnan(rsq));      rsq = 1;    % Set to 1, to continue to analyze data
-                elseif(isinf(rsq));  rsq = 1;       
+                if(isnan(rsq));      rsq = 1;           % Set to 1, to continue to analyze data
+                elseif(isinf(rsq));  rsq = 1;        
                 end 
 
                 % Copy for test
@@ -160,7 +155,6 @@ function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCur
           if(coeffThshld > GoodFitThreshold)
                 marker= marker+ window_length;
                 dataFit_pre = dataFit;
-
 %%        % e2) If false, save data window, plot, & perform statistics. 
           else         
 
@@ -168,8 +162,8 @@ function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCur
                    if(~(windowIndex-window_length==1))             % If not the beginning
                         wFinish     = windowIndex-window_length;
                         Range       = wStart:wFinish;               % Save from wStart to the immediately preceeding index that passed the threshold
-                        Time        = forceData(Range,1);           % Time indeces that we are working with
-                        Data        = forceData(Range,forceIndex);  % Corresponding force data for a given force element in a given window
+                        Time        = (Range)'; %Wren_loc(Range,1);    % Time indeces that we are working with
+                        Data        = Wren_loc(Range,forceIndex);  % Corresponding force data for a given force element in a given window
                         % if there isn't existing previous good fitting results, use current bad result.
                         if (isnan(dataFit_pre))
                             dataFit     = dataFit(1:length(Range),1);   % Data fit - window components
@@ -183,26 +177,19 @@ function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCur
                     else
                         wFinish     = windowIndex;
                         Range       = wStart:wFinish;               % Save from wStart to the immediately preceeding index that passed the threshold
-                        Time        = forceData(Range,1);           % Time indeces that we are working with
-                        Data        = forceData(Range,forceIndex);  % Corresponding force data for a given force element in a given windowdataFit     = dataFit(Range);               % Corresponding force data for a given force element in a given window                    
+                        Time        = (Range)'; % Wren_loc(Range,1);   % Time indeces that we are working with
+                        Data        = Wren_loc(Range,forceIndex);  % Corresponding force data for a given force element in a given windowdataFit     = dataFit(Range);               % Corresponding force data for a given force element in a given window                    
                         dataFit     = dataFit(Range);               % Corresponding force data for a given force element in a given window
                         dataFit_pre = nan;
                     end
 %%                  ii) Retrieve the segment's statistical Data and write to file
-                    [dAvg dMax dMin dStart dFinish dGradient dLabel]=rt_statisticalData(Time(1),   Time(length(Range)),...
+                    [dAvg dMax dMin dStart dFinish dGradient dLabel]=rt_statisticalData(Time(1)*(1/rate),   Time(length(Range))*(1/rate),...
                                                                                      dataFit,      polyCoeffs,...
                                                                                      FolderName,StrategyType,index); % 1+windowlength
 
                     % iii) Keep history of statistical data 
                     % All data types are numerical in this version. // Prior versions: Given that the datatypes are mixed, we must use cells. See {http://www.mathworks.com/help/techdoc/matlab_prog/br04bw6-98.html}       
                     statData(segmentIndex,:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
-
-                    % iv) Write to file
-                    if(DB_WRITE)
-                        [FileName,write2FileFlag]=WritePrimitivesToFile(fPath,StratTypeFolder,FolderName,...
-                                                          Type,FileName,write2FileFlag, ...
-                                                          segmentIndex,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel);
-                    end
 
 %%                  % Wrap Up 
                     % vi) Increase counter
@@ -211,10 +198,9 @@ function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCur
                     % vii) Reset the window start and the window finish markers
                     wStart = wFinish;       % Start with the last "out-of-threshold" window
                     marker = marker+window_length;
-            end % End coefficient threshold
+          end % End coefficient threshold
         
-    end
     
-    
+end
     
     

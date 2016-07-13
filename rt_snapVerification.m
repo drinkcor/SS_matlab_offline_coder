@@ -10,9 +10,7 @@
 % if you want to get compouIndex of My, you should use: ForceCell{5}{3}
 
 
-function  [hlbBelief,llbBelief,...
-           stateTimes,hlbehStruc,...
-           fcAvgData,boolFCData] = rt_snapVerification(StrategyType,FolderName,first,last)
+function  rt_snapVerification(StrategyType,FolderName)
 %UNTITLED real time RCBHT
 %   Detailed explanation goes here
 
@@ -45,10 +43,7 @@ function  [hlbBelief,llbBelief,...
 
     localIndex  = 0;
     Wren_loc    = zeros(1000,7);
-    
-    % primary_level data and index for it
-    statData       = zeros(100,7);             % Growing array that will hold segmented block statistical data (int types).
-    segmentIndex   = 1; 
+
         
     rosshutdown;
     rosinit;
@@ -63,11 +58,17 @@ function  [hlbBelief,llbBelief,...
     delete(gcp);
     parpool(2);
     
+    for axisIndex = 1:6
+        ForceCell{axisIndex}{1} = zeros(100,7);     % primitive level data
+        ForceCell{axisIndex}{2} = 1;                % primitive level index
+        ForceCell{axisIndex}{7} = nan;              % dataFit_pre
+        ForceCell{axisIndex}{8} = 1;                % wStart
+        ForceCell{axisIndex}{9} = 1;                % marker
+    end
     rate = 40;
-    wStart = 1;
-    marker = 1;
+    window_length = 5;
     
-     while(1)     
+    while(1)     
         while (localIndex<globalIndex)
             % Increase Counter for local index
             localIndex=localIndex+1;
@@ -75,36 +76,40 @@ function  [hlbBelief,llbBelief,...
             Wren_loc(localIndex,2:7)  = Wrench(localIndex,2:7);                      
             %Wren_loc_new = Wrench_new;
             
-            fprintf('\tGlobalIndex: %8f\tLocalIndex: %8f\n',globalIndex,localIndex);
-            % WrenchHandle.LatestMessage;
+            % fprintf('\tGlobalIndex: %8f\tLocalIndex: %8f\n',globalIndex,localIndex);
             
-            parfor axisIndex = 2:7
+            parfor axisIndex = 1:6
                 pType  = plotType(axisIndex,:);  
-            %   if (mod(localIndex,window_length)==0)
-                    [ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9}] = rt_fitRegressionCurves(Wren_loc,localIndex,ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},fPath,StrategyType,StratTypeFolder,FolderName,Type,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9},rate,pType,axisIndex);    % fit window
-                    [ForceCell{axisIndex}{3},ForceCell{axisIndex}{4}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{3},ForceCell{axisIndex}{4} );
-                    [ForceCell{axisIndex}{5},ForceCell{axisIndex}{6}] = rt_llbehComposition(ForceCell{axisIndex}{3},ForceCell{axisIndex}{4},ForceCell{axisIndex}{5},ForceCell{axisIndex}{6});
-                    % fprintf('\tWren_loc(%1.0f', idx)
-                    % fprintf(') = %8.4f', Wren_loc(localIndex,idx));
+                % Primitive_layer: the process won't be execute unless there is enough data for fitting.
+                if (ForceCell{axisIndex}{9}+window_length <= localIndex)
+                    fprintf('marker: %1.0f  ',ForceCell{axisIndex}{9});
+                    fprintf('wStart: %1.0f  ',ForceCell{axisIndex}{8});
+                    [ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9}] = rt_fitRegressionCurves(Wren_loc,ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},StrategyType,FolderName,pType,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9},rate,axisIndex);    % fit window
                 end
+                
+   %            [ForceCell{axisIndex}{3},ForceCell{axisIndex}{4}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{3},ForceCell{axisIndex}{4} );
+   %            [ForceCell{axisIndex}{5},ForceCell{axisIndex}{6}] = rt_llbehComposition(ForceCell{axisIndex}{3},ForceCell{axisIndex}{4},ForceCell{axisIndex}{5},ForceCell{axisIndex}{6});
+    
+                 % fprintf('\tWren_loc(%1.0f', idx)
+                 % fprintf(') = %8.4f', Wren_loc(localIndex,idx));
+                
             end
             drawnow;
         end 
         drawnow;
-         a=input('please input the centure a: ');
-         if(a==2)
+        a=input('please input the centure a: ');
+        if(a==2)
              break;
-         end
+        end
     end
      
-     
 
-      plot(1:localIndex,Wren_loc(:,2));
-      hold on;
-      plot(1:localIndex,Wren_loc(:,3));
-      plot(1:localIndex,Wren_loc(:,4));
+    plot(1:localIndex,Wren_loc(:,2));
+    hold on;
+    plot(1:localIndex,Wren_loc(:,3));
+    plot(1:localIndex,Wren_loc(:,4));
       
-      save('Wren_loc.mat','Wren_loc');
+    save('Wren_loc.mat','Wren_loc');
     
        
        
