@@ -97,9 +97,29 @@ function  rt_snapVerification(StrategyType,FolderName)
             drawnow;
         end 
         drawnow;
-        a=input('please input the centure a: ');
+        a=input('please input 2 to run the last iteration: ');
         if(a==2)
-             break;
+%      last iteration of primitive layer            
+            parfor axisIndex = 1:6
+                % Set the final variables
+                wFinish     = localIndex;                            % Set to the last index of statData (the primitives space)
+                Range       = ForceCell{axisIndex}{8}:wFinish;               % Save from wStart to the immediately preceeding index that passed the threshold
+                Time        = (Range)'; % Wren_loc(Range,1);          % Time indeces that we are working with
+                Data        = Wren_loc(Range,axisIndex+1); % Corresponding force data for a given force element in a given window
+                
+                polyCoeffs  = polyfit(Time,Data,1);            % First-order fit
+                dataFit     = polyval(polyCoeffs, Time);
+
+%%              ii) Retrieve the segment's statistical Data and write to file
+                [dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel]=rt_statisticalData(Time(1),Time(length(Time)),dataFit,polyCoeffs,FolderName,StrategyType,axisIndex); % 1+windowlength
+
+                % iii) Keep history of statistical data 
+                % All data types are numerical in this version. // Prior
+                % versions: Given that the datatypes are mixed, we must use cells. See {http://www.mathworks.com/help/techdoc/matlab_prog/br04bw6-98.html}       
+                ForceCell{axisIndex}{1}(ForceCell{axisIndex}{2},:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
+                        
+            end
+            break;
         end
     end
      
