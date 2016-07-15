@@ -84,14 +84,37 @@ function  rt_snapVerification(StrategyType,FolderName)
                 if (ForceCell{axisIndex}{9}+window_length <= localIndex)
                     fprintf('marker: %1.0f  ',ForceCell{axisIndex}{9});
                     fprintf('wStart: %1.0f  ',ForceCell{axisIndex}{8});
-                    [ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9}] = rt_fitRegressionCurves(Wren_loc,ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},StrategyType,FolderName,pType,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9},rate,axisIndex);    % fit window
+                    [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9}] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,pType,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9},rate,axisIndex);    % fit window
+                    if(hasNew)
+                        % Keep history of statistical data 
+                        ForceCell{axisIndex}{1}(ForceCell{axisIndex}{2},:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
+                        % Increase counter
+                        ForceCell{axisIndex}{2} = ForceCell{axisIndex}{2}+1;
+                    end
                 end
+% 
+%                 % Primitive_layer clean up
+%                  if (marker_p_c+1 <= ForceCell{axisIndex}{2})
+%                      
+%                      statData = rt_primitivesCleanUp(statData,gradLabels,marker_p_c);
+%                      
+%                      statData, j,  
+%                      
+%                  end
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
                 
    %            [ForceCell{axisIndex}{3},ForceCell{axisIndex}{4}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{3},ForceCell{axisIndex}{4} );
    %            [ForceCell{axisIndex}{5},ForceCell{axisIndex}{6}] = rt_llbehComposition(ForceCell{axisIndex}{3},ForceCell{axisIndex}{4},ForceCell{axisIndex}{5},ForceCell{axisIndex}{6});
-    
-                 % fprintf('\tWren_loc(%1.0f', idx)
-                 % fprintf(') = %8.4f', Wren_loc(localIndex,idx));
+
                 
             end
             drawnow;

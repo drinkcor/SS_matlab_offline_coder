@@ -47,7 +47,7 @@
 % real-time: delete some parameters about plotting, pHandle, TL, BL.
 % 2016.7.7
 %**************************************************************************
-function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCurves(Wren_loc,statData,segmentIndex,StrategyType,FolderName,Type,dataFit_pre,wStart,marker,rate,index)
+function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wStart,marker] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,Type,dataFit_pre,wStart,marker,rate,index)
 
 
 %% Initialize variables
@@ -153,8 +153,11 @@ function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCur
 
           % ei) If good correlation, keep growing window
           if(coeffThshld > GoodFitThreshold)
-                marker= marker+ window_length;
+                marker      = marker+ window_length;
                 dataFit_pre = dataFit;
+                
+                hasNew      = false;
+                dAvg=0;     dMax=0;     dMin=0;     dStart=0;   dFinish=0;  dGradient=0;    dLabel=0;
 %%        % e2) If false, save data window, plot, & perform statistics. 
           else         
 
@@ -186,18 +189,11 @@ function [statData,segmentIndex,dataFit_pre,wStart,marker] = rt_fitRegressionCur
                     [dAvg dMax dMin dStart dFinish dGradient dLabel]=rt_statisticalData(Time(1)*(1/rate),   Time(length(Range))*(1/rate),...
                                                                                      dataFit,      polyCoeffs,...
                                                                                      FolderName,StrategyType,index); % 1+windowlength
-
-                    % iii) Keep history of statistical data 
-                    % All data types are numerical in this version. // Prior versions: Given that the datatypes are mixed, we must use cells. See {http://www.mathworks.com/help/techdoc/matlab_prog/br04bw6-98.html}       
-                    statData(segmentIndex,:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
-
-%%                  % Wrap Up 
-                    % vi) Increase counter
-                    segmentIndex = segmentIndex + 1;
                     
                     % vii) Reset the window start and the window finish markers
                     wStart = wFinish;       % Start with the last "out-of-threshold" window
                     marker = marker+window_length;
+                    hasNew = true;
           end % End coefficient threshold
         
     
