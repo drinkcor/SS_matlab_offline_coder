@@ -200,6 +200,23 @@ function gradLabel = rt_GradientClassification(gradient,...
                 mpos  = mpos/factor;     mneg = -1*mpos;
                 spos  = spos/factor;     sneg = -1*spos; 
             end
+        else    % forces
+            if(strcmp(StrategyType,'HSA'))
+                factor = 10.0;
+
+                pimp  = pimp/factor;     nimp = -1*pimp; % These are a later addition but are indexed as positions 7 and 8
+                bpos  = bpos/factor;     bneg = -1*bpos;
+                mpos  = mpos/factor;     mneg = -1*mpos;
+                spos  = spos/factor;     sneg = -1*spos; 
+
+            elseif(strcmp(StrategyType,'ErrorCharac'))
+                factor = 10.0;
+
+                pimp  = pimp/factor;     nimp = -1*pimp; % These are a later addition but are indexed as positions 7 and 8
+                bpos  = bpos/factor;     bneg = -1*bpos;
+                mpos  = mpos/factor;     mneg = -1*mpos;
+                spos  = spos/factor;     sneg = -1*spos; 
+            end
         end
     end    
 
