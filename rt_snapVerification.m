@@ -111,7 +111,7 @@ function  rt_snapVerification(StrategyType,FolderName)
                 dataFit     = polyval(polyCoeffs, Time);
 
 %%              ii) Retrieve the segment's statistical Data and write to file
-                [dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel]=rt_statisticalData(Time(1),Time(length(Time)),dataFit,polyCoeffs,FolderName,StrategyType,axisIndex); % 1+windowlength
+                [dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel]=rt_statisticalData(Time(1)*(1/rate),Time(length(Time))*(1/rate),dataFit,polyCoeffs,FolderName,StrategyType,axisIndex); % 1+windowlength
 
                 % iii) Keep history of statistical data 
                 % All data types are numerical in this version. // Prior
