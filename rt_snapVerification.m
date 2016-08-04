@@ -1,6 +1,6 @@
 % % Structure of ForcePicture: (Copy to a fixed structure(sliced varialbe in parfor) for post-processing)
-% ForceCell= {
-%                 Fx = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex, dataFit_pre, wStart, marker}
+% ForceCell= {-
+%                 Fx = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex, dataFit_pre, wStart, marker, statData_pc, pc_index, lookForRepeat, numberRepeated, marker_pc}
 %                 Fy = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex }
 %                 Fz = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex }
 %                 Mx = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex }
@@ -48,7 +48,7 @@ function  rt_snapVerification(StrategyType,FolderName)
     rosshutdown;
     rosinit;
     
-    pub = rospublisher('/robot/limb/right/endpoint_state', 'baxter_core_msgs/EndpointState');
+    % pub = rospublisher('/robot/limb/right/endpoint_state', 'baxter_core_msgs/EndpointState');
     
     wrenchHandle  = rossubscriber('/robot/limb/right/endpoint_state',@wrenchCallback, 'BufferSize', 1000);
     % wrench_node_sub = robotics.ros.Node('/wrench_node_subscriber');
@@ -59,12 +59,23 @@ function  rt_snapVerification(StrategyType,FolderName)
     parpool(2);
     
     for axisIndex = 1:6
+        % Variables for primitive level
         ForceCell{axisIndex}{1} = zeros(100,7);     % primitive level data
         ForceCell{axisIndex}{2} = 1;                % primitive level index
         ForceCell{axisIndex}{7} = nan;              % dataFit_pre
         ForceCell{axisIndex}{8} = 1;                % wStart
         ForceCell{axisIndex}{9} = 1;                % marker
+        
+        % Variables for primitive level CleanUp 
+        ForceCell{axisIndex}{10} = zeros(100,7);    % primitive level CleanUp data
+        ForceCell{axisIndex}{11} = 1;               % primitive level CleanUp index        
+        ForceCell{axisIndex}{12} = 0;               % lookForRepeat, 0 means not looking for repeat, 1 means looking for repeat
+        ForceCell{axisIndex}{13} = 0;               % numberRepeated
+        ForceCell{axisIndex}{14} = 1;               % marker
+        
     end
+    
+    
     rate = 40;
     window_length = 5;
     
@@ -79,28 +90,33 @@ function  rt_snapVerification(StrategyType,FolderName)
             % fprintf('\tGlobalIndex: %8f\tLocalIndex: %8f\n',globalIndex,localIndex);
             
             parfor axisIndex = 1:6
+                
                 pType  = plotType(axisIndex,:);  
-                % Primitive_layer: the process won't be execute unless there is enough data for fitting.
+                %% Primitive_layer: the process won't be execute unless there is enough data for fitting.
                 if (ForceCell{axisIndex}{9}+window_length <= localIndex)
                     fprintf('marker: %1.0f  ',ForceCell{axisIndex}{9});
                     fprintf('wStart: %1.0f  ',ForceCell{axisIndex}{8});
-                    [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9}] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,pType,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9},rate,axisIndex);    % fit window
-                    if(hasNew)
+                    [hasNew_p,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9}] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,pType,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9},rate,axisIndex);    % fit window
+                    if(hasNew_p)
                         % Keep history of statistical data 
                         ForceCell{axisIndex}{1}(ForceCell{axisIndex}{2},:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
                         % Increase counter
                         ForceCell{axisIndex}{2} = ForceCell{axisIndex}{2}+1;
                     end
                 end
-% 
-%                 % Primitive_layer clean up
-%                  if (marker_p_c+1 <= ForceCell{axisIndex}{2})
-%                      
-%                      statData = rt_primitivesCleanUp(statData,gradLabels,marker_p_c);
-%                      
-%                      statData, j,  
-%                      
-%                  end
+
+                
+                %% Primitive_layer clean up    
+                if (marker_pc+1 <= ForceCell{axisIndex}{2})
+                    [hasNew_pc,data_new, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14}] = rt_primitivesCleanUp(statData, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14},gradLabels);
+                    if (hasNew_pc)
+                        % Keep history of statistical data 
+                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = data_new;
+                        % Increase counter
+                        ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
+                    end
+                     
+                end
                 
                 
                 
