@@ -40,21 +40,21 @@
 %                     Assumes the 5 states of the Pivot Approach.
 % gradLabels        - column string vector containing all of the primitive labels
 %**************************************************************************
-function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primitivesCleanUp(statData,lookForRepeat,numberRepeated,marker_pc,gradLabels)
+function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primitivesCleanUp(statData,lookForRepeat,numberRepeated,marker_pc)
 
 %% Initialization
- 
+
     
 %%  GRADIENT PRIMITIVES
 
 %   % CONSTANTS FOR gradLabels (defined in fitRegressionCurves.m)
-%   BPOS            = 1;        % big   pos gradient
-%   MPOS            = 2;        % med   pos gradient
-%   SPOS            = 3;        % small pos gradient
-%   BNEG            = 4;        % big   neg gradient
-%   MNEG            = 5;        % med   neg gradient
-%   SNEG            = 6;        % small neg gradient
-%   CONST           = 7;        % constant  gradient
+    BPOS            = 1;        % big   pos gradient
+    MPOS            = 2;        % med   pos gradient
+    SPOS            = 3;        % small pos gradient
+    BNEG            = 4;        % big   neg gradient
+    MNEG            = 5;        % med   neg gradient
+    SNEG            = 6;        % small neg gradient
+    CONST           = 7;        % constant  gradient
     PIMP            = 8;        % large pos gradient 
     NIMP            = 9;        % large neg gradient
     %NONE            = 10;       % none
@@ -88,9 +88,12 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
 
     checkRatio = 0;     % flag, 0 means that no need to check ratio, 1 means need to check.
     
+    hasnew_pc = 0;
+    data_new = [0 0 0 0 0 0 0];
+    
 %% (1) Delete repeated primitives    
  % no repeatition flag
-    i = 1;
+    i = marker_pc;
     j = i+1;
             
 %%  Compare labels (int type's) of contiguous primitives)
@@ -98,21 +101,24 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
         
         if( intcmp(statData(i,7),statData(j,7)) )
             lookForRepeat   = true;
-            numberRepeated     = numberRepeated+1;
+            numberRepeated  = numberRepeated+1;
+            marker_pc       = marker_pc+1;
         else
             % Merge as many primitives as are repeated
-            nextPrimitive   = i;
+            nextPrimitive   = numberRepeated;
             startPrimitive  = i-numberRepeated;
-            data_new  = rt_MergePrimitives(startPrimitive,statData,nextPrimitive); % The third argument is gradLabels but it is not used.
-            marker_pc = marker_pc+1;
-            hasnew_pc = 1;
+            data_new        = rt_MergePrimitives(startPrimitive,statData,nextPrimitive); % The third argument is gradLabels but it is not used.
+            hasnew_pc       = 1;
+            
             lookForRepeat   = false;
-            numberRepeated     = 0;
+            numberRepeated  = 0;
+            marker_pc       = marker_pc+1;
         end 
     else
         if( intcmp(statData(i,7),statData(j,7)) )
             lookForRepeat   = true;
             numberRepeated  = numberRepeated+1;
+            marker_pc       = marker_pc+1;
         else
             % Go ahead to check (2):Time duration context
             lookForRepeat   = false;
@@ -125,11 +131,12 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
     
     
 %%  (2) TIME DURATION CONTEXT - MERGE AND MODIFY Primitives
+
 	if(checkRatio) 
         
         % If it is not a contact label compare the times.
-        if(~strcmp(statData(i,GRAD_LBL),gradLabels(PIMP,:)) && ...
-                ~strcmp(statData(i,GRAD_LBL),gradLabels(NIMP,:)))                
+        if( ~intcmp(statData(i,GRAD_LBL),PIMP) && ...
+                ~intcmp(statData(i,GRAD_LBL),NIMP) )                
             
             % (1) Get Amplitude of Primitives
             amp1 = abs(statData(i,mxAmp)-statData(i,minAmp));       % Absolute value of amplitude difference of first primitive
@@ -137,42 +144,37 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
             
             % Compute ratio of 2nd primitive vs 1st primitive
             ampRatio = amp2/amp1;
-            if(ampRatio==0 || ampRatio==inf);                                 % If this is true, don't merge, stay 
-                data_new  = statData(i,:);
-                marker_pc = marker_pc+1;
-                hasnew_pc = 1;
-            end                            
-            
-            if(ampRatio > amplitudeRatio || ampRatio < inv(amplitudeRatio))   % If this is true, don't merge, stay 
-                data_new  = statData(i,:);
-                marker_pc = marker_pc+1;
-                hasnew_pc = 1;
                 
             % The amplitude ratio is small, it's okay to filter by duration
-            else                
+            if ( ampRatio <= amplitudeRatio && ampRatio >= inv(amplitudeRatio) && ampRatio~=0 && ampRatio~=inf  )                
                 % (2) Get Duration of primitives inside compositions
                 p1time = statData(i,T1E)-statData(i,T1S);       % Get duration of first primitive
                 p2time = statData(i+1,T1E)-statData(i+1,T1S);   % Get duration of second primitive    
                 
                 ratio = p1time/p2time;
-                if(ratio==0 || ratio==inf);  
-                    data_new  = statData(i,:);
-                    marker_pc = marker_pc+1;
-                    hasnew_pc = 1;
-                end
 
                 % Merge according to the ratio            
-                if(ratio > lengthRatio)
+                if(ratio~=0 && ratio~=inf && ratio > lengthRatio)
                     thisPrim = 0;            % First primitive is longer
                     data_new  = rt_MergePrimitives(i,statData,thisPrim);
                     marker_pc = marker_pc+2;
                     hasnew_pc = 1;
-                elseif(ratio < inv(lengthRatio))
+                    
+                elseif(ratio~=0 && ratio~=inf && ratio < inv(lengthRatio))
                     nextPrim = 1;            % Second primitive is longer
                     data_new  = rt_MergePrimitives(i,statData,nextPrim);
                     marker_pc = marker_pc+2;
                     hasnew_pc = 1;
-                end  
+                    
+                else
+                    data_new  = statData(i,:);
+                    marker_pc = marker_pc+1;
+                    hasnew_pc = 1;
+                end 
+            else
+                data_new  = statData(i,:);
+                marker_pc = marker_pc+1;
+                hasnew_pc = 1;
             end
         else
             data_new  = statData(i,:);
@@ -180,7 +182,5 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
             hasnew_pc = 1;
         end
     end
-    if(~hasnew_pc)
-        data_new = [0 0 0 0 0 0 0];
-    end
+
 end

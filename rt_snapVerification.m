@@ -27,8 +27,30 @@ function  rt_snapVerification(StrategyType,FolderName)
                    'pimp';   ... % large pos grads
                    'nimp';   ... % large neg grads
                    'none'];
-               
+    
+    %   % CONSTANTS FOR gradLabels (defined in fitRegressionCurves.m)
+    BPOS            = 1;        % big   pos gradient
+    MPOS            = 2;        % med   pos gradient
+    SPOS            = 3;        % small pos gradient
+    BNEG            = 4;        % big   neg gradient
+    MNEG            = 5;        % med   neg gradient
+    SNEG            = 6;        % small neg gradient
+    CONST           = 7;        % constant  gradient
+    PIMP            = 8;        % large pos gradient 
+    NIMP            = 9;        % large neg gradient
+  % NONE            = 10;       % none
 
+    % Amplitude Indeces
+    mxAmp           = 2;  
+    minAmp          = 3;
+    % Time Indeces
+    T1S             = 4; 
+    T1E             = 5; 
+    % Grad label Indeces
+    GRAD_LBL        = 7;
+    
+    lengthRatio     = 5;  % Empirically set
+    amplitudeRatio  = 2;
 
     global globalIndex;
     global Wrench;
@@ -107,8 +129,8 @@ function  rt_snapVerification(StrategyType,FolderName)
 
                 
                 %% Primitive_layer clean up    
-                if (marker_pc+1 <= ForceCell{axisIndex}{2})
-                    [hasNew_pc,data_new, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14}] = rt_primitivesCleanUp(statData, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14},gradLabels);
+                if (ForceCell{axisIndex}{14}+2 <= ForceCell{axisIndex}{2})
+                    [hasNew_pc,data_new, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14}] = rt_primitivesCleanUp(ForceCell{axisIndex}{1}, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14});
                     if (hasNew_pc)
                         % Keep history of statistical data 
                         ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = data_new;
@@ -117,17 +139,7 @@ function  rt_snapVerification(StrategyType,FolderName)
                     end
                      
                 end
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
+                                             
    %            [ForceCell{axisIndex}{3},ForceCell{axisIndex}{4}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{3},ForceCell{axisIndex}{4} );
    %            [ForceCell{axisIndex}{5},ForceCell{axisIndex}{6}] = rt_llbehComposition(ForceCell{axisIndex}{3},ForceCell{axisIndex}{4},ForceCell{axisIndex}{5},ForceCell{axisIndex}{6});
 
@@ -138,9 +150,10 @@ function  rt_snapVerification(StrategyType,FolderName)
         drawnow;
         a=input('please input 2 to run the last iteration: ');
         if(a==2)
-%      last iteration of primitive layer            
+        %% Last iteration to wrap up            
             parfor axisIndex = 1:6
-                % Set the final variables
+                
+                %% Last iteration of primitive layer           
                 wFinish     = localIndex;                            % Set to the last index of statData (the primitives space)
                 Range       = ForceCell{axisIndex}{8}:wFinish;               % Save from wStart to the immediately preceeding index that passed the threshold
                 Time        = (Range)'; % Wren_loc(Range,1);          % Time indeces that we are working with
@@ -149,14 +162,81 @@ function  rt_snapVerification(StrategyType,FolderName)
                 polyCoeffs  = polyfit(Time,Data,1);            % First-order fit
                 dataFit     = polyval(polyCoeffs, Time);
 
-%%              ii) Retrieve the segment's statistical Data and write to file
                 [dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel]=rt_statisticalData(Time(1)*(1/rate),Time(length(Time))*(1/rate),dataFit,polyCoeffs,FolderName,StrategyType,axisIndex); % 1+windowlength
-
-                % iii) Keep history of statistical data 
-                % All data types are numerical in this version. // Prior
-                % versions: Given that the datatypes are mixed, we must use cells. See {http://www.mathworks.com/help/techdoc/matlab_prog/br04bw6-98.html}       
+    
                 ForceCell{axisIndex}{1}(ForceCell{axisIndex}{2},:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
+               
+                %% Last iteration of primitive layer clean up             
+                if (ForceCell{axisIndex}{12})
+                    if ( intcmp(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},GRAD_LBL),ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,GRAD_LBL)) )
+                        nextPrimitive   = ForceCell{axisIndex}{13}+1;
+                        startPrimitive  = ForceCell{axisIndex}{14}-ForceCell{axisIndex}{13};
+                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = rt_MergePrimitives(startPrimitive,ForceCell{axisIndex}{1},nextPrimitive);
+                    else
+                        nextPrimitive   = ForceCell{axisIndex}{13};
+                        startPrimitive  = ForceCell{axisIndex}{14}-ForceCell{axisIndex}{13};
+                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = rt_MergePrimitives(startPrimitive,ForceCell{axisIndex}{1},nextPrimitive);
+                        ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
+                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,:);
+                    end
+                else
+                    if  ( intcmp(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},GRAD_LBL),ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,GRAD_LBL)) )
+                        nextPrimitive   = 1;
+                        startPrimitive  = ForceCell{axisIndex}{14};
+                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = rt_MergePrimitives(startPrimitive,ForceCell{axisIndex}{1},nextPrimitive);
+                    else
+                        if ( ~intcmp(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},GRAD_LBL),PIMP) && ~intcmp(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},GRAD_LBL),NIMP) ) 
+                            amp1 = abs(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},mxAmp)-ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},minAmp));
+                            amp2 = abs(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,mxAmp)-ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,minAmp));
+                            ampRatio = amp2/amp1;       
+                            
+                            if (ampRatio <= amplitudeRatio && ampRatio >= inv(amplitudeRatio) && ampRatio~=0 && ampRatio~=inf )
+                                p1time = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},T1E)-ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},T1S);       % Get duration of first primitive
+                                p2time = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,T1E)-ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,T1S);   % Get duration of second primitive    
+                                ratio  = p1time/p2time;
+
+                                if(ratio~=0 && ratio~=inf && ratio > lengthRatio)
+                                    thisPrim = 0;            % First primitive is longer
+                                    ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:)  = rt_MergePrimitives(ForceCell{axisIndex}{14},ForceCell{axisIndex}{1},thisPrim);
+                                elseif(ratio~=0 && ratio~=inf && ratio < inv(lengthRatio))
+                                    nextPrim = 0;            % Second primitive is longer
+                                    ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:)  = rt_MergePrimitives(ForceCell{axisIndex}{14},ForceCell{axisIndex}{1},nextPrim);
+                                else
+                                    ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},:);
+                                    ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
+                                    ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,:);
+                                end
+                            else
+                                ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},:);
+                                ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
+                                ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,:);
+                            end
+                        else
+                            ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},:);
+                            ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
+                            ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,:);
+                        end
+                    end
+                end
                         
+                        
+                        
+                
+                
+                
+                
+                %% Last iteration of compound motion layer  
+                
+                %% Last iteration of compound motion layer clean up  
+                
+                %% Last iteration of low level behavior layer  
+                
+                %% Last iteration of low level behavior layer clean up  
+                
+                %% Last iteration of high level behavior layer
+                
+                %% Last iteration of high level behavior layer clean up  
+                
             end
             break;
         end

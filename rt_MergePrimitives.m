@@ -43,30 +43,31 @@ function data_new = rt_MergePrimitives(index,data,indicator)
     % Gradient Indeces
     GRAD_VAL    = 6;
     GRAD_LBL    = 7;
+    data_new    = data(index,:);
     
-%% Merge according the ratio
+%% Merge according the ratio (including the situation that numberRepeated==1)
     if(indicator<2)
 
     %%  Name Label 
-        data(index,GRAD_LBL) = data(index+indicator,GRAD_LBL); % Keep the label of the gradient that is longer
+        data_new(GRAD_LBL)          = data(index+indicator,GRAD_LBL); % Keep the label of the gradient that is longer
 
     %%  Values                                                        
         % Average average magnitude value: (index+match)/2
-        data(index,AVG_MAG_VAL)     = mean([data(index,AVG_MAG_VAL),data(match,AVG_MAG_VAL)]);
+        data_new(AVG_MAG_VAL)       = mean([data(index,AVG_MAG_VAL),data(match,AVG_MAG_VAL)]);
 
         % MAX_VAL value: keep the maximum value that comes from either one
-        data(index,MAX_VAL)         = max( data(index,MAX_VAL),data(match,MAX_VAL) ); 
+        data_new(MAX_VAL)           = max( data(index,MAX_VAL),data(match,MAX_VAL) ); 
 
         % MIN_VAL value: (index+match)/2
-        data(index,MIN_VAL)         = min( data(index,MIN_VAL),data(match,MIN_VAL) );     
+        data_new(MIN_VAL)           = min( data(index,MIN_VAL),data(match,MIN_VAL) );     
 
     %%  Time
         % T1_END,index = T2_END,index
-        data(index,T1E) = data(index+1,T1E);
+        data_new(T1E) = data(index+1,T1E);
 
     %% Gradient
         % Average gradient values
-        data(index,GRAD_VAL)   = ( data(index,GRAD_VAL)   + data(match,GRAD_VAL) )/2; 
+        data_new(GRAD_VAL)   = ( data(index,GRAD_VAL)   + data(match,GRAD_VAL) )/2; 
     
 %%  Merge according to repeated primitives    
     else
@@ -75,22 +76,22 @@ function data_new = rt_MergePrimitives(index,data,indicator)
         
         %%  Values                                                        
             % Average average magnitude value: (index+match)/2
-            data(index,AVG_MAG_VAL)   = sum( data(index:index+indicator,AVG_MAG_VAL))/indicator; 
+            data_new(AVG_MAG_VAL)   = sum( data(index:index+indicator,AVG_MAG_VAL))/(indicator+1); 
 
             % MAX_VAL value: (index+match)/2
-            data(index,MAX_VAL)       = max( data(index:index+indicator,MAX_VAL) ); 
+            data_new(MAX_VAL)       = max( data(index:index+indicator,MAX_VAL) ); 
 
             % MIN_VAL value: (index+match)/2
-            data(index,MIN_VAL)       = min( data(index:index+indicator,MIN_VAL) );    
+            data_new(MIN_VAL)       = min( data(index:index+indicator,MIN_VAL) );    
 
         %%  Time
             % T1_END,index = T2_END,index
-            data(index,T1E) = data(index+indicator,T1E);
+            data_new(T1E) = data(index+indicator,T1E);
 
         %% Gradient
             % Average gradient values
-            data(index,GRAD_VAL)   = sum( data(index:index+indicator,GRAD_VAL))/indicator;    
+            data_new(GRAD_VAL)   = sum( data(index:index+indicator,GRAD_VAL))/(indicator+1);    
       
     end
-    data_new = data(index,:);
+    
 end
