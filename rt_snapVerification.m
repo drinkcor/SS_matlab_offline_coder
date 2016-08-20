@@ -1,6 +1,6 @@
 % % Structure of ForcePicture: (Copy to a fixed structure(sliced varialbe in parfor) for post-processing)
 % ForceCell= {-
-%                 Fx = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex, dataFit_pre, wStart, marker, statData_pc, pc_index, lookForRepeat, numberRepeated, marker_pc}
+%                 Fx = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex, dataFit_pre, wStart, marker, statData_pc, pc_index, lookForRepeat, numberRepeated, marker_pc, marker_cm}
 %                 Fy = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex }
 %                 Fz = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex }
 %                 Mx = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex }
@@ -81,20 +81,25 @@ function  rt_snapVerification(StrategyType,FolderName)
     parpool(2);
     
     for axisIndex = 1:6
-        % Variables for primitive level
-        ForceCell{axisIndex}{1} = zeros(100,7);     % primitive level data
-        ForceCell{axisIndex}{2} = 1;                % primitive level index
+        % Variables for Primitive layer
+        ForceCell{axisIndex}{1} = zeros(100,7);     % primitive layer data
+        ForceCell{axisIndex}{2} = 1;                % primitive layer index
         ForceCell{axisIndex}{7} = nan;              % dataFit_pre
         ForceCell{axisIndex}{8} = 1;                % wStart
         ForceCell{axisIndex}{9} = 1;                % marker
         
-        % Variables for primitive level CleanUp 
-        ForceCell{axisIndex}{10} = zeros(100,7);    % primitive level CleanUp data
-        ForceCell{axisIndex}{11} = 1;               % primitive level CleanUp index        
+        % Variables for Primitive layer CleanUp 
+        ForceCell{axisIndex}{10} = zeros(100,7);    % primitive layer CleanUp data
+        ForceCell{axisIndex}{11} = 1;               % primitive layer CleanUp index        
         ForceCell{axisIndex}{12} = 0;               % lookForRepeat, 0 means not looking for repeat, 1 means looking for repeat
         ForceCell{axisIndex}{13} = 0;               % numberRepeated
         ForceCell{axisIndex}{14} = 1;               % marker
         
+        % Variables for CompoundMotionComposition layer
+        ForceCell{axisIndex}{3} = zeros(100,11);     % CompoundMotionComposition layer data
+        ForceCell{axisIndex}{4} = 1;                % CompoundMotionComposition layer index
+        
+        ForceCell{axisIndex}{14} = 1;               % marker
     end
     
     
@@ -139,11 +144,29 @@ function  rt_snapVerification(StrategyType,FolderName)
                     end
                      
                 end
-                                             
+                
+                
+                %% CompoundMotionComposition_layer
+                 if (ForceCell{axisIndex}{17}+2 <= ForceCell{axisIndex}{11})
+                    [hasNew_cm, data_new, ForceCell{axisIndex}{17}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{17});
+                    if (hasNew_cm)
+                        ForceCell{axisIndex}{2}(ForceCell{axisIndex}{3},:) = data_new;
+                        % Increase counter
+                        ForceCell{axisIndex}{3} = ForceCell{axisIndex}{3}+1;
+                    end
+                 end
+                
+                
+                %% Low layer behavior layer
    %            [ForceCell{axisIndex}{3},ForceCell{axisIndex}{4}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{3},ForceCell{axisIndex}{4} );
+
+   
+   
+                %% High layer behavior layer
    %            [ForceCell{axisIndex}{5},ForceCell{axisIndex}{6}] = rt_llbehComposition(ForceCell{axisIndex}{3},ForceCell{axisIndex}{4},ForceCell{axisIndex}{5},ForceCell{axisIndex}{6});
 
                 
+   
             end
             drawnow;
         end 
@@ -152,6 +175,7 @@ function  rt_snapVerification(StrategyType,FolderName)
         if(a==2)
         %% Last iteration to wrap up            
             parfor axisIndex = 1:6
+                
                 
                 %% Last iteration of primitive layer           
                 wFinish     = localIndex;                            % Set to the last index of statData (the primitives space)
@@ -166,6 +190,7 @@ function  rt_snapVerification(StrategyType,FolderName)
     
                 ForceCell{axisIndex}{1}(ForceCell{axisIndex}{2},:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
                
+                
                 %% Last iteration of primitive layer clean up             
                 if (ForceCell{axisIndex}{12})
                     if ( intcmp(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},GRAD_LBL),ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,GRAD_LBL)) )
@@ -219,23 +244,31 @@ function  rt_snapVerification(StrategyType,FolderName)
                     end
                 end
                         
-                        
-                        
-                
-                
                 
                 
                 %% Last iteration of compound motion layer  
                 
+                
+                
                 %% Last iteration of compound motion layer clean up  
                 
-                %% Last iteration of low level behavior layer  
                 
-                %% Last iteration of low level behavior layer clean up  
                 
-                %% Last iteration of high level behavior layer
+                %% Last iteration of low layer behavior layer  
                 
-                %% Last iteration of high level behavior layer clean up  
+                
+                
+                %% Last iteration of low layer behavior layer clean up  
+                
+                
+                
+                %% Last iteration of high layer behavior layer
+                
+                
+                
+                %% Last iteration of high layer behavior layer clean up  
+                
+                
                 
             end
             break;
