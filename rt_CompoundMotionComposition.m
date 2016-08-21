@@ -112,7 +112,8 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 break;      % break the for loop
 %%          ii) Check for match with bneg, mneg, sneg                
             elseif(strcmp(gradInt2gradLbl(statData(marker_cm,7)),gradLabels(lbl+3,:)))           %b/m/s/neg
-                labelType = 'negative'; match_lbl=lbl+3;
+                labelType = 'negative'; 
+                match_lbl=lbl+3;
 
                 % C. Find Match
                 [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,gradLabels);                   
@@ -120,7 +121,8 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 break;      % break the for loop
 %%          iii) Check for match with constant                
             elseif(strcmp(gradInt2gradLbl(statData(marker_cm,7)),gradLabels(7,:)))
-                labelType = 'constant'; match_lbl = 7;
+                labelType = 'constant'; 
+                match_lbl = 7;
 
                 % C. Find Match
                 [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,gradLabels);                   
@@ -128,7 +130,8 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 break;      % break the for loop                
 %%          iv) Check for match with positive impulse,pimp               
             elseif(strcmp( gradInt2gradLbl(statData(marker_cm,7)), gradLabels(8,:)))
-                labelType = 'pimp'; match_lbl = 8;
+                labelType = 'pimp'; 
+                match_lbl = 8;
 
                 % C. Find Match
                 [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,gradLabels);                   
@@ -137,7 +140,8 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
 
 %%          v) Check for match with negative impulse, nimp 
             elseif( strcmp(gradInt2gradLbl(statData(marker_cm,7)), gradLabels(9,:)) )
-                labelType = 'nimp'; match_lbl = 9;
+                labelType = 'nimp'; 
+                match_lbl = 9;
 
                 % C. Find Match
                 [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,gradLabels);                   

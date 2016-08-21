@@ -99,7 +99,7 @@ function  rt_snapVerification(StrategyType,FolderName)
         ForceCell{axisIndex}{3} = zeros(100,11);     % CompoundMotionComposition layer data
         ForceCell{axisIndex}{4} = 1;                % CompoundMotionComposition layer index
         
-        ForceCell{axisIndex}{14} = 1;               % marker
+        ForceCell{axisIndex}{17} = 1;               % marker
     end
     
     
@@ -150,9 +150,9 @@ function  rt_snapVerification(StrategyType,FolderName)
                  if (ForceCell{axisIndex}{17}+2 <= ForceCell{axisIndex}{11})
                     [hasNew_cm, data_new, ForceCell{axisIndex}{17}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{17});
                     if (hasNew_cm)
-                        ForceCell{axisIndex}{2}(ForceCell{axisIndex}{3},:) = data_new;
+                        ForceCell{axisIndex}{3}(ForceCell{axisIndex}{4},:) = data_new;
                         % Increase counter
-                        ForceCell{axisIndex}{3} = ForceCell{axisIndex}{3}+1;
+                        ForceCell{axisIndex}{4} = ForceCell{axisIndex}{4}+1;
                     end
                  end
                 
