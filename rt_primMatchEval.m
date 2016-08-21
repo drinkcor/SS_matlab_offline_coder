@@ -153,15 +153,15 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                 
                 % Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
-                p2time = statData(nextIndex,TE)-statData(nextIndex,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf)      % This will never happen, do nothing
+                p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
+                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen, do nothing
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
 
                     % Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                     p1max = statData(index,2); p1min = statData(index,3);
-                    p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                    p2max = statData(match,2); p2min = statData(match,3); 
                     p1 = [p1max p1min]; p2 = [p2max p2min];                
                     [amplitudeVal,amp1,amp2] = computedAmplitude('pos','neg',p1,p2);
 
@@ -209,15 +209,15 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
 
                 % Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
-                p2time = statData(nextIndex,TE)-statData(nextIndex,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf)     % This will never happen
+                p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
+                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);     % This will never happen
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)                
 
                     % Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                     p1max = statData(index,2); p1min = statData(index,3);
-                    p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                    p2max = statData(match,2); p2min = statData(match,3); 
                     p1 = [p1max p1min]; p2 = [p2max p2min];                
                     [amplitudeVal,amp1,amp2] = computedAmplitude('pos','pos',p1,p2);
 
@@ -260,15 +260,15 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                 
                 % Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
-                p2time = statData(nextIndex,TE)-statData(nextIndex,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf)      % This will never happen
+                p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
+                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)                  
 
                     % Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                     p1max = statData(index,2); p1min = statData(index,3);
-                    p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                    p2max = statData(match,2); p2min = statData(match,3); 
                     p1 = [p1max p1min]; p2 = [p2max p2min];                
                     [amplitudeVal,amp1,amp2] = computedAmplitude('pos','const',p1,p2);
 
@@ -308,7 +308,7 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
 
                 %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                 p1max = statData(index,2); p1min = statData(index,3);
-                p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                p2max = statData(match,2); p2min = statData(match,3); 
                 p1 = [p1max p1min]; p2 = [p2max p2min];                
                 [amplitudeVal,~,~] = computedAmplitude('pos','impulse',p1,p2);  
                 % Contact
@@ -327,7 +327,7 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                        
                 %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                 p1max = statData(index,2); p1min = statData(index,3);
-                p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                p2max = statData(match,2); p2min = statData(match,3); 
                 p1 = [p1max p1min]; p2 = [p2max p2min];                
                 [amplitudeVal,~,~] = computedAmplitude('pos','impulse',p1,p2); 
                 
@@ -379,15 +379,15 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                 
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
-                p2time = statData(nextIndex,TE)-statData(nextIndex,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf)          % This will never happen
+                p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
+                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);          % This will never happen
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
 
                     %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                     p1max = statData(index,2); p1min = statData(index,3);
-                    p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                    p2max = statData(match,2); p2min = statData(match,3); 
                     p1 = [p1max p1min]; p2 = [p2max p2min];                
                     [amplitudeVal,amp1,amp2] = computedAmplitude('neg','pos',p1,p2);
 
@@ -438,15 +438,15 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                 
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
-                p2time = statData(nextIndex,TE)-statData(nextIndex,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf)      % This will never happen
+                p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
+                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
 
                     %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                     p1max = statData(index,2); p1min = statData(index,3);
-                    p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                    p2max = statData(match,2); p2min = statData(match,3); 
                     p1 = [p1max p1min]; p2 = [p2max p2min];                
                     [amplitudeVal,amp1,amp2] = computedAmplitude('neg','neg',p1,p2);
 
@@ -487,15 +487,15 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                 
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
-                p2time = statData(nextIndex,TE)-statData(nextIndex,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf)      % This will never happen
+                p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
+                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
 
                     %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                     p1max = statData(index,2); p1min = statData(index,3);
-                    p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                    p2max = statData(match,2); p2min = statData(match,3); 
                     p1 = [p1max p1min]; p2 = [p2max p2min];                
                     [amplitudeVal,amp1,amp2] = computedAmplitude('neg','const',p1,p2);
 
@@ -535,7 +535,7 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                 
                 %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                 p1max = statData(index,2); p1min = statData(index,3);
-                p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                p2max = statData(match,2); p2min = statData(match,3); 
                 p1 = [p1max p1min]; p2 = [p2max p2min];                
                 [amplitudeVal,~,~] = computedAmplitude('neg','impulse',p1,p2);                
                 
@@ -555,7 +555,7 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
 
                 %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                 p1max = statData(index,2); p1min = statData(index,3);
-                p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                p2max = statData(match,2); p2min = statData(match,3); 
                 p1 = [p1max p1min]; p2 = [p2max p2min];                
                 [amplitudeVal,~,~] = computedAmplitude('neg','impulse',p1,p2); 
                 % Class
@@ -602,15 +602,15 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                 
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
-                p2time = statData(nextIndex,TE)-statData(nextIndex,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf)      % This will never happen
+                p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
+                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
 
                     %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                     p1max = statData(index,2); p1min = statData(index,3);
-                    p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                    p2max = statData(match,2); p2min = statData(match,3); 
                     p1 = [p1max p1min]; p2 = [p2max p2min];                
                     [amplitudeVal,amp1,amp2] = computedAmplitude('const','pos',p1,p2);
 
@@ -652,15 +652,15 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                 
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
-                p2time = statData(nextIndex,TE)-statData(nextIndex,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf)      % This will never happen
+                p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
+                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
 
                     %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                     p1max = statData(index,2); p1min = statData(index,3);
-                    p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                    p2max = statData(match,2); p2min = statData(match,3); 
                     p1 = [p1max p1min]; p2 = [p2max p2min];                
                     [amplitudeVal,amp1,amp2] = computedAmplitude('const','neg',p1,p2);
 
@@ -700,15 +700,15 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
                 
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
-                p2time = statData(nextIndex,TE)-statData(nextIndex,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf)      % This will never happen
+                p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
+                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
 
                     %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                     p1max = statData(index,2); p1min = statData(index,3);
-                    p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                    p2max = statData(match,2); p2min = statData(match,3); 
                     p1 = [p1max p1min]; p2 = [p2max p2min];                
                     [amplitudeVal,amp1,amp2] = computedAmplitude('const','const',p1,p2);
 
@@ -748,7 +748,7 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
 
                 %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                 p1max = statData(index,2); p1min = statData(index,3);
-                p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                p2max = statData(match,2); p2min = statData(match,3); 
                 p1 = [p1max p1min]; p2 = [p2max p2min];                
                 [amplitudeVal,~,~] = computedAmplitude('const','impulse',p1,p2);                 
                 
@@ -767,7 +767,7 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
 
                 %% Get Amplitude of primitives inside compositions amplitudeVal: maxp1,minp2Max and min values of first and second primitives
                 p1max = statData(index,2); p1min = statData(index,3);
-                p2max = statData(nextIndex,2); p2min = statData(nextIndex,3); 
+                p2max = statData(match,2); p2min = statData(match,3); 
                 p1 = [p1max p1min]; p2 = [p2max p2min];                
                 [amplitudeVal,~,~] = computedAmplitude('const','impulse',p1,p2);                 
                 
@@ -1065,15 +1065,10 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
         % Compute time indeces
         t1Start = statData(index,4);              % Starting time for primitive 1
         t1End   = statData(index,5);%-0.001;      % Ending time for primitive 1
+                    
+        t2Start = statData(match,4);          % Starting time for primitive 2
+        t2End   = statData(match,5);%-0.001;  % Ending time for primitive 2.  Previous code: statData(match+1,5)-0.001;
 
-        % Indeces Check: ensure no array is exceeded by the index
-        if(match+1<r(1))                            
-            t2Start = statData(match,4);          % Starting time for primitive 2
-            t2End   = statData(match,5);%-0.001;  % Ending time for primitive 2.  Previous code: statData(match+1,5)-0.001;
-        else
-            t2Start = statData(match,4);          % Starting time for primitive 2
-            t2End   = statData(match,5);          % We are in the last element
-        end
 
         tAvgIndex = (t1Start+t2End)/2;
 
