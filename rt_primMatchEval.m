@@ -86,7 +86,7 @@
 %                             helps to insure there is consistency across
 %                             function calls
 %**************************************************************************
-function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabels)
+function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIteration)
     
 %% Initialization    
     
@@ -102,6 +102,17 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
     NIMP            = 9;        % large neg gradient
     %NONE            = 10;       % none
     
+         gradLabels = [ 'bpos';   ... % big   pos grads
+                   'mpos';   ... % med   pos grads
+                   'spos';   ... % small pos grads
+                   'bneg';   ... % big   neg grads
+                   'mneg';   ... % med   neg grads
+                   'sneg';   ... % small neg grads
+                   'cons';  ... % constant  grads
+                   'pimp';   ... % large pos grads
+                   'nimp';   ... % large neg grads
+                   'none'];
+               
 %%  DEFINE ACTION CLASS    
     % String Cell Array used to describe the kind of action (a=adjustment, i=increase, d=decrease, c=constant).
     actnClass       = '';
@@ -127,7 +138,11 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,gradLabe
 %%  Window Parameters
 
     % Set the range by looking at a window after the index
-    match            = index + 1; 
+    if (lastIteration)
+        match    = index;
+    else
+        match    = index + 1; 
+    end
     
     %Match           = false;                      % If no match look again. 
 %%  MATCHES

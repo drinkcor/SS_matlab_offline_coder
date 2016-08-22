@@ -58,7 +58,7 @@
 %                         data struc is a cell array:
 %                         [class,avgMagVal,rmsVal,AmplitudeVal,glabel1,glabel2,t1Index,t2Index,tAvg]
 %***************************************************************************************************************
-function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,marker_cm)
+function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,marker_cm,lastIteration)
 
 %--------------------------------------------------------------------------
     % Composition Data: [class,avgMagVal,rmsVal,AmplitudeVal,glabel1,glabel2,t1Index,t2Index,tAvg]. See rt_primMatchEval.
@@ -107,7 +107,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 labelType = 'positive'; 
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,lbl,statData,gradLabels);
+                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,lbl,statData,lastIteration);
                 hasNew_cm = 1;
                 break;      % break the for loop
 %%          ii) Check for match with bneg, mneg, sneg                
@@ -116,7 +116,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 match_lbl=lbl+3;
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,gradLabels);                   
+                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
                 hasNew_cm = 1;                
                 break;      % break the for loop
 %%          iii) Check for match with constant                
@@ -125,7 +125,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 match_lbl = 7;
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,gradLabels);                   
+                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
                 hasNew_cm = 1;                
                 break;      % break the for loop                
 %%          iv) Check for match with positive impulse,pimp               
@@ -134,7 +134,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 match_lbl = 8;
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,gradLabels);                   
+                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
                 hasNew_cm = 1;
                 break;      % break the for loop                
 
@@ -144,7 +144,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 match_lbl = 9;
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,gradLabels);                   
+                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
                 hasNew_cm = 1;
                 break;      % break the for loop                
             end
