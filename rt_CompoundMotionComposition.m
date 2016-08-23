@@ -107,8 +107,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 labelType = 'positive'; 
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,lbl,statData,lastIteration);
-                hasNew_cm = 1;
+                [hasNew_cm,data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,lbl,statData,lastIteration);
                 break;      % break the for loop
 %%          ii) Check for match with bneg, mneg, sneg                
             elseif(strcmp(gradInt2gradLbl(statData(marker_cm,7)),gradLabels(lbl+3,:)))           %b/m/s/neg
@@ -116,8 +115,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 match_lbl=lbl+3;
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
-                hasNew_cm = 1;                
+                [hasNew_cm,data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                                
                 break;      % break the for loop
 %%          iii) Check for match with constant                
             elseif(strcmp(gradInt2gradLbl(statData(marker_cm,7)),gradLabels(7,:)))
@@ -125,8 +123,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 match_lbl = 7;
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
-                hasNew_cm = 1;                
+                [hasNew_cm,data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                                  
                 break;      % break the for loop                
 %%          iv) Check for match with positive impulse,pimp               
             elseif(strcmp( gradInt2gradLbl(statData(marker_cm,7)), gradLabels(8,:)))
@@ -134,8 +131,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 match_lbl = 8;
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
-                hasNew_cm = 1;
+                [hasNew_cm,data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
                 break;      % break the for loop                
 
 %%          v) Check for match with negative impulse, nimp 
@@ -144,8 +140,7 @@ function [hasNew_cm,data_new,marker_cm]=rt_CompoundMotionComposition(statData,ma
                 match_lbl = 9;
 
                 % C. Find Match
-                [data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
-                hasNew_cm = 1;
+                [hasNew_cm,data_new,marker_cm] = rt_primMatchEval(marker_cm,labelType,match_lbl,statData,lastIteration);                   
                 break;      % break the for loop                
             end
         end     % End gradLabels iteration for labels                                               

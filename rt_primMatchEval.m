@@ -86,7 +86,7 @@
 %                             helps to insure there is consistency across
 %                             function calls
 %**************************************************************************
-function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIteration)
+function [hasNew_cm,motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIteration)
     
 %% Initialization    
     
@@ -169,7 +169,11 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                 % Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
                 p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen, do nothing
+                
+                if(p1time == 0 || p1time==inf || p2time==inf)     % Throw away this primitive
+                    % Set number of compositions to 0
+                    numCompositions=0;
+                    
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
@@ -189,12 +193,23 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                         % Class: adjustment
                         actnClass = actionLbl(increase);
                     
-                        % Set number of compositions to 1
-                        numCompositions=1;
-                    
                         % Gradient labels
                         glabel1 = gradLbl2gradInt(gradLabels(lbl,:)); 
                         glabel2 = gradLbl2gradInt(gradLabels(lbl,:)); 
+                        
+                        % Check amplitude between compositions
+                        amp1 = statData(index,2); amp2 = statData(index,3);                                       
+
+                        % Amplitude: either both pos/neg or one pos the other neg.
+                        if(amp1>=0 && amp2>=0 || amp1<=0 && amp2<=0)
+                            amplitudeVal    = abs(amp1)-abs(amp2);  % Subtract both positive or negative values to get the amplitude
+                        else
+                            amplitudeVal    = abs(amp1)+abs(amp2);  % Take the absolute value of both and add them
+                        end
+                        
+                        % Set number of compositions to 1
+                        numCompositions=1;
+                    
                 
                     % 2 Primitives Composition: the amplitude difference is small, and it's okay to combine
                     else
@@ -225,7 +240,9 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                 % Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
                 p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);     % This will never happen
+                if(p1time == 0 || p1time==inf || p2time==inf)     % Throw away this primitive         
+                    % Set number of compositions to 0
+                    numCompositions=0;
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)                
@@ -246,13 +263,23 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                         % actnClass: increase
                         actnClass = actionLbl(increase);     % Increase
                 
-                        % Set number of compositions to 1
-                        numCompositions=1;
-                    
                         % Gradient labels
                         glabel1 = gradLbl2gradInt(gradLabels(lbl,:)); 
                         glabel2 = gradLbl2gradInt(gradLabels(lbl,:)); 
                 
+                        % Check amplitude between compositions
+                        amp1 = statData(index,2); amp2 = statData(index,3);                                       
+
+                        % Amplitude: either both pos/neg or one pos the other neg.
+                        if(amp1>=0 && amp2>=0 || amp1<=0 && amp2<=0)
+                            amplitudeVal    = abs(amp1)-abs(amp2);  % Subtract both positive or negative values to get the amplitude
+                        else
+                            amplitudeVal    = abs(amp1)+abs(amp2);  % Take the absolute value of both and add them
+                        end
+                        
+                        % Set number of compositions to 1
+                        numCompositions=1;
+                    
                     % 2 Primitive Composition: the amplitude difference is small, and it's okay to combine
                     else
                     
@@ -276,7 +303,9 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                 % Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
                 p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
+                if(p1time == 0 || p1time==inf || p2time==inf)     % Throw away this primitive 
+                    % Set number of compositions to 0
+                    numCompositions=0;
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)                  
@@ -296,13 +325,23 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
 
                         % Increase
                         actnClass = actionLbl(increase);                     
-                    
-                        % Set number of compositions to 1
-                        numCompositions=1;
-                    
+                                            
                         % Gradient labels
                         glabel1 = gradLbl2gradInt(gradLabels(lbl,:)); 
                         glabel2 = gradLbl2gradInt(gradLabels(lbl,:)); 
+                        
+                        % Check amplitude between compositions
+                        amp1 = statData(index,2); amp2 = statData(index,3);                                       
+
+                        % Amplitude: either both pos/neg or one pos the other neg.
+                        if(amp1>=0 && amp2>=0 || amp1<=0 && amp2<=0)
+                            amplitudeVal    = abs(amp1)-abs(amp2);  % Subtract both positive or negative values to get the amplitude
+                        else
+                            amplitudeVal    = abs(amp1)+abs(amp2);  % Take the absolute value of both and add them
+                        end
+                
+                        % Set number of compositions to 1
+                        numCompositions=1;
                 
                     % 2 Primitive Composition: the amplitude difference is small, and it's okay to combine
                     else
@@ -395,7 +434,9 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
                 p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);          % This will never happen
+                if(p1time == 0 || p1time==inf || p2time==inf)     % Throw away this primitive 
+                    % Set number of compositions to 0
+                    numCompositions=0;
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
@@ -415,14 +456,24 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
 
                         % Class
                         actnClass = actionLbl(decrease);                    % Decrease
-                
-                        % Set number of compositions to 1
-                        numCompositions=1;
-                    
+
                         % Gradient labels
                         glabel1 = gradLbl2gradInt(gradLabels(lbl,:)); 
                         glabel2 = gradLbl2gradInt(gradLabels(lbl,:)); 
-                
+                        
+                        % Check amplitude between compositions
+                        amp1 = statData(index,2); amp2 = statData(index,3);                                       
+
+                        % Amplitude: either both pos/neg or one pos the other neg.
+                        if(amp1>=0 && amp2>=0 || amp1<=0 && amp2<=0)
+                            amplitudeVal    = abs(amp1)-abs(amp2);  % Subtract both positive or negative values to get the amplitude
+                        else
+                            amplitudeVal    = abs(amp1)+abs(amp2);  % Take the absolute value of both and add them
+                        end
+                               
+                        % Set number of compositions to 1
+                        numCompositions=1;
+                    
                     %% 2 Primitive Composite: the amplitude difference is small, and it's okay to combine
                     else
                     
@@ -454,7 +505,9 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
                 p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
+                if(p1time == 0 || p1time==inf || p2time==inf)     % Throw away this primitive 
+                    % Set number of compositions to 0
+                    numCompositions=0;
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
@@ -474,12 +527,23 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                         % Class
                         actnClass = actionLbl(decrease);    % Decrease                    
                     
-                        % Set number of compositions to 1
-                        numCompositions=1;
-                    
                         % Gradient labels
                         glabel1 = gradLbl2gradInt(gradLabels(lbl,:)); 
                         glabel2 = gradLbl2gradInt(gradLabels(lbl,:)); 
+                        
+                        % Check amplitude between compositions
+                        amp1 = statData(index,2); amp2 = statData(index,3);                                       
+
+                        % Amplitude: either both pos/neg or one pos the other neg.
+                        if(amp1>=0 && amp2>=0 || amp1<=0 && amp2<=0)
+                            amplitudeVal    = abs(amp1)-abs(amp2);  % Subtract both positive or negative values to get the amplitude
+                        else
+                            amplitudeVal    = abs(amp1)+abs(amp2);  % Take the absolute value of both and add them
+                        end
+                        
+                        % Set number of compositions to 1
+                        numCompositions=1;
+                    
                 
                     %% 2 Primitives Composition: the amplitude difference is small, and it's okay to combine
                     else
@@ -503,7 +567,9 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
                 p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
+                if(p1time == 0 || p1time==inf || p2time==inf)     % Throw away this primitive 
+                    % Set number of compositions to 0
+                    numCompositions=0;
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
@@ -523,13 +589,24 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                         % Class
                         actnClass = actionLbl(decrease);                    % Decrease
                 
-                        % Set number of compositions to 1
-                        numCompositions=1;
+
                     
                         % Gradient labels
                         glabel1 = gradLbl2gradInt(gradLabels(lbl,:)); 
                         glabel2 = gradLbl2gradInt(gradLabels(lbl,:)); 
-                
+                        
+                        % Check amplitude between compositions
+                        amp1 = statData(index,2); amp2 = statData(index,3);                                       
+
+                        % Amplitude: either both pos/neg or one pos the other neg.
+                        if(amp1>=0 && amp2>=0 || amp1<=0 && amp2<=0)
+                            amplitudeVal    = abs(amp1)-abs(amp2);  % Subtract both positive or negative values to get the amplitude
+                        else
+                            amplitudeVal    = abs(amp1)+abs(amp2);  % Take the absolute value of both and add them
+                        end
+ 
+                        % Set number of compositions to 1
+                        numCompositions=1;
                     %% 2 Primitives Composition: The amplitude difference is small, and it's okay to combine
                     else
                     
@@ -618,7 +695,9 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
                 p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
+                if(p1time == 0 || p1time==inf || p2time==inf)     % Throw away this primitive 
+                    % Set number of compositions to 0
+                    numCompositions=0;
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
@@ -637,13 +716,23 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
 
                         % Class
                         actnClass = actionLbl(constant);                               % Constant                    
-                    
-                        % Set number of compositions to 1
-                        numCompositions=1;
 
                         % Gradient labels
                         glabel1 = gradLbl2gradInt(gradLabels(CONST,:)); 
                         glabel2 = gradLbl2gradInt(gradLabels(CONST,:)); 
+                        
+                        % Check amplitude between compositions
+                        amp1 = statData(index,2); amp2 = statData(index,3);                                       
+
+                        % Amplitude: either both pos/neg or one pos the other neg.
+                        if(amp1>=0 && amp2>=0 || amp1<=0 && amp2<=0)
+                            amplitudeVal    = abs(amp1)-abs(amp2);  % Subtract both positive or negative values to get the amplitude
+                        else
+                            amplitudeVal    = abs(amp1)+abs(amp2);  % Take the absolute value of both and add them
+                        end
+                        
+                        % Set number of compositions to 1
+                        numCompositions=1;
 
                     %% 2 Primitives Composition: the amplitude difference is small, and it's okay to combine
                     else
@@ -668,7 +757,9 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
                 p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
+                if(p1time == 0 || p1time==inf || p2time==inf)     % Throw away this primitive 
+                    % Set number of compositions to 0
+                    numCompositions=0;
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
@@ -687,14 +778,24 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
 
                         % Class: decrease
                         actnClass = actionLbl(constant);                             % constant                    
-                    
-                        % Set number of compositions to 1
-                        numCompositions=1;
 
                         % Gradient labels
                         glabel1 = gradLbl2gradInt(gradLabels(CONST,:)); 
                         glabel2 = gradLbl2gradInt(gradLabels(CONST,:)); 
+                        
+                        % Check amplitude between compositions
+                        amp1 = statData(index,2); amp2 = statData(index,3);                                       
 
+                        % Amplitude: either both pos/neg or one pos the other neg.
+                        if(amp1>=0 && amp2>=0 || amp1<=0 && amp2<=0)
+                            amplitudeVal    = abs(amp1)-abs(amp2);  % Subtract both positive or negative values to get the amplitude
+                        else
+                            amplitudeVal    = abs(amp1)+abs(amp2);  % Take the absolute value of both and add them
+                        end
+                        
+                        % Set number of compositions to 1
+                        numCompositions=1;
+                        
                     %% 2 Primitives Composition: the amplitude difference is small, and it's okay to combine
                     else                    
                
@@ -716,7 +817,9 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                 %% Get Duration of primitives inside compositions
                 p1time = statData(index,TE)-statData(index,TS);   % Get duration of first primitive
                 p2time = statData(match,TE)-statData(match,TS);   % Get duration of second primitive
-                if(p1time == 0 || p2time == 0 || p1time==inf || p2time==inf);      % This will never happen
+                if(p1time == 0 || p1time==inf || p2time==inf)     % Throw away this primitive        
+                    % Set number of compositions to 0
+                    numCompositions=0;
                 else
                     durationRatio=p2time/p1time;
                     % || durationRatio>lengthRatio || durationRatio < inv(lengthRatio)
@@ -735,13 +838,24 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
               
                         % Class
                         actnClass = actionLbl(constant);                   % CONSTANT
-                    
-                        % Set number of compositions to 1
-                        numCompositions=1;
 
                         % Gradient labels
                         glabel1 = gradLbl2gradInt(gradLabels(CONST,:)); 
                         glabel2 = gradLbl2gradInt(gradLabels(CONST,:)); 
+                        
+                        % Check amplitude between compositions
+                        amp1 = statData(index,2); amp2 = statData(index,3);                                       
+
+                        % Amplitude: either both pos/neg or one pos the other neg.
+                        if(amp1>=0 && amp2>=0 || amp1<=0 && amp2<=0)
+                            amplitudeVal    = abs(amp1)-abs(amp2);  % Subtract both positive or negative values to get the amplitude
+                        else
+                            amplitudeVal    = abs(amp1)+abs(amp2);  % Take the absolute value of both and add them
+                        end
+                        
+                                            
+                        % Set number of compositions to 1
+                        numCompositions=1;
 
                     %% 2 Primitives Composition The amplitude difference is small, and it's okay to combine
                     else              
@@ -1102,10 +1216,11 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
                   ];                     % [actnClass,avgMagVal,rmsVal,glabel1,glabel2,t1Start,t1End,t2Start,t2End,tAvgIndex]
 
         % Update index
-        index = match+1;      
+        index       = match+1;     
+        hasNew_cm   = 1;
     
     %% If one composition, then adjust values correspondingly
-    else
+    elseif(numCompositions==1)
         
         % Average magnitude value 
         avgMagVal = statData(index,1);   
@@ -1138,8 +1253,12 @@ function [motComps,index]=rt_primMatchEval(index,labelType,lbl,statData,lastIter
 
         % Update index only by 1, since there are no two contiguous
         % primitives
-        index = index+1;         
-        
+        index       = index+1;     
+        hasNew_cm   = 1;
+    else
+        motComps    = [0 0 0 0 0 0 0 0 0 0 0];
+        index       = index+1;
+        hasNew_cm   = 0;
     end
     
 end
