@@ -1184,7 +1184,8 @@ function [hasNew_cm,motComps,index]=rt_primMatchEval(index,labelType,lbl,statDat
     %% Average values if 2 compositions
     if(numCompositions==2)
         % Average magnitude value 
-        avgMagVal = (statData(index,1)+statData(match,1))/2;   
+        % Use time duration as weight 
+        avgMagVal = (  (statData(index,5)-statData(index,4))*statData(index,1) + (statData(match,5)-statData(match,4))*statData(match,1)  ) / (statData(match,5)-statData(index,4));   
 
         % MavVal replaces RMS 2013Sept
         rmsVal = max(statData(index,2),statData(match,2));   
