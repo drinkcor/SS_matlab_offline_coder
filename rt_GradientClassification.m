@@ -32,7 +32,7 @@ function gradLabel = rt_GradientClassification(gradient,...
                                             FolderName,StrategyType,forceAxisIndex)
 
 %% Intialization
-    global Optimization;                            % Copy the global value defined in snapVerification.m
+    Optimization = 0;                            % Copy the global value defined in snapVerification.m
     gradientClassificationFlag = false;             % Initialize the flag to false indicating that gradients have not been optimized
 %% Set Path                                        
     StratTypeFolder = AssignDir(StrategyType);
