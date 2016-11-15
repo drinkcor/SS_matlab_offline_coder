@@ -84,7 +84,7 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
 %%  DURATION VARIABLES    
     % Threshold for merging two primitives according to lengthRatio
     lengthRatio     = 5;  % Empirically set
-    amplitudeRatio = 2;
+    amplitudeRatio = 5;
 
     checkRatio = 0;     % flag, 0 means that no need to check ratio, 1 means need to check.
     
@@ -131,7 +131,8 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
     
     
 %%  (2) TIME DURATION CONTEXT - MERGE AND MODIFY Primitives
-
+    % If a primitive's amplitude and time duration are both 5x longer than the adjacent one, merge the adjacent one to it.
+    
 	if(checkRatio) 
         
         % If it is not a contact label compare the times.
@@ -143,10 +144,9 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
             amp2 = abs(statData(i+1,mxAmp)-statData(i+1,minAmp));   % bsolute value of amplitude difference of second primitive
             
             % Compute ratio of 2nd primitive vs 1st primitive
-            ampRatio = amp2/amp1;
-                
-            % The amplitude ratio is small, it's okay to filter by duration
-            if ( ampRatio <= amplitudeRatio && ampRatio >= inv(amplitudeRatio) && ampRatio~=0 && ampRatio~=inf  )                
+            ampRatio = amp1/amp2;
+                         
+            if ( ampRatio >= amplitudeRatio && ampRatio~=inf  )                
                 % (2) Get Duration of primitives inside compositions
                 p1time = statData(i,T1E)-statData(i,T1S);       % Get duration of first primitive
                 p2time = statData(i+1,T1E)-statData(i+1,T1S);   % Get duration of second primitive    
@@ -159,18 +159,29 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
                     data_new  = rt_MergePrimitives(i,statData,thisPrim);
                     marker_pc = marker_pc+2;
                     hasnew_pc = 1;
-                    
-                elseif(ratio~=0 && ratio~=inf && ratio < inv(lengthRatio))
-                    nextPrim = 1;            % Second primitive is longer
-                    data_new  = rt_MergePrimitives(i,statData,nextPrim);
-                    marker_pc = marker_pc+2;
-                    hasnew_pc = 1;
-                    
                 else
                     data_new  = statData(i,:);
                     marker_pc = marker_pc+1;
                     hasnew_pc = 1;
                 end 
+            elseif ( ampRatio <= inv(amplitudeRatio) && ampRatio~=0  )
+                % (2) Get Duration of primitives inside compositions
+                p1time = statData(i,T1E)-statData(i,T1S);       % Get duration of first primitive
+                p2time = statData(i+1,T1E)-statData(i+1,T1S);   % Get duration of second primitive    
+                
+                ratio = p1time/p2time;
+                
+                % Merge according to the ratio 
+                if(ratio~=0 && ratio~=inf && ratio < inv(lengthRatio))
+                    nextPrim = 1;            % Second primitive is longer
+                    data_new  = rt_MergePrimitives(i,statData,nextPrim);
+                    marker_pc = marker_pc+2;
+                    hasnew_pc = 1;
+                else
+                    data_new  = statData(i,:);
+                    marker_pc = marker_pc+1;
+                    hasnew_pc = 1;
+                end     
             else
                 data_new  = statData(i,:);
                 marker_pc = marker_pc+1;

@@ -37,7 +37,7 @@ function data_new = rt_MergePrimitives(index,data,indicator)
      MIN_VAL          = 3;   % minimum value of a primitive   
 
      % Time Indeces
-     %T1S = 4; 
+     T1S = 4; 
      T1E = 5;
     
     % Gradient Indeces
@@ -52,8 +52,12 @@ function data_new = rt_MergePrimitives(index,data,indicator)
         data_new(GRAD_LBL)          = data(index+indicator,GRAD_LBL); % Keep the label of the gradient that is longer
 
     %%  Values                                                        
-        % Average average magnitude value: (index+match)/2
-        data_new(AVG_MAG_VAL)       = mean([data(index,AVG_MAG_VAL),data(match,AVG_MAG_VAL)]);
+        % Average average magnitude value: use their time duration as weight
+        Tindex                      = data(index,T1E)-data(index,T1S);
+        Tmatch                      = data(match,T1E)-data(match,T1S);
+        Twhole                      = data(match,T1E)-data(index,T1S);
+        
+        data_new(AVG_MAG_VAL)       = ( data(index,AVG_MAG_VAL) * Tindex + data(match,AVG_MAG_VAL) * Tmatch ) / Twhole;
 
         % MAX_VAL value: keep the maximum value that comes from either one
         data_new(MAX_VAL)           = max( data(index,MAX_VAL),data(match,MAX_VAL) ); 
@@ -63,11 +67,11 @@ function data_new = rt_MergePrimitives(index,data,indicator)
 
     %%  Time
         % T1_END,index = T2_END,index
-        data_new(T1E) = data(index+1,T1E);
+        data_new(T1E) = data(match,T1E);
 
     %% Gradient
         % Average gradient values
-        data_new(GRAD_VAL)   = ( data(index,GRAD_VAL)   + data(match,GRAD_VAL) )/2; 
+        data_new(GRAD_VAL)          = ( data(index,GRAD_VAL)*Tindex + data(match,GRAD_VAL)*Tmatch ) / Twhole; 
     
 %%  Merge according to repeated primitives    
     else
@@ -75,8 +79,13 @@ function data_new = rt_MergePrimitives(index,data,indicator)
         %% Label: Nothing needs to be done. We will keep the lable of the first primitive.
         
         %%  Values                                                        
-            % Average average magnitude value: (index+match)/2
-            data_new(AVG_MAG_VAL)   = sum( data(index:index+indicator,AVG_MAG_VAL))/(indicator+1); 
+            % Average average magnitude value: use their time duration as weight
+            sum_mag = 0;
+            for i=index:index+indicator
+               sum_mag = sum_mag + data(i,AVG_MAG_VAL) * ( data(i,T1E) - data(i,T1S) ); 
+            end
+            Twhole = data(index+indicator,T1E) - data(index,T1S);
+            data_new(AVG_MAG_VAL)   = sum_mag / Twhole; 
 
             % MAX_VAL value: (index+match)/2
             data_new(MAX_VAL)       = max( data(index:index+indicator,MAX_VAL) ); 
@@ -89,8 +98,12 @@ function data_new = rt_MergePrimitives(index,data,indicator)
             data_new(T1E) = data(index+indicator,T1E);
 
         %% Gradient
+            sum_grad = 0;
+            for i=index:index+indicator
+               sum_grad = sum_grad + data(i,GRAD_VAL) * ( data(i,T1E) - data(i,T1S) ); 
+            end
             % Average gradient values
-            data_new(GRAD_VAL)   = sum( data(index:index+indicator,GRAD_VAL))/(indicator+1);    
+            data_new(GRAD_VAL)   = sum_grad / Twhole;    
       
     end
     
