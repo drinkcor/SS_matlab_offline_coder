@@ -101,7 +101,7 @@ function  rt_snapVerification(StrategyType,FolderName)
         ForceCell{axisIndex}{3} = zeros(100,11);    % CompoundMotionComposition layer data
         ForceCell{axisIndex}{4} = 1;                % CompoundMotionComposition layer index
         
-        ForceCell{axisIndex}{17} = 1;               % marker
+        ForceCell{axisIndex}{15} = 1;               % marker
     end
     
     
@@ -150,8 +150,8 @@ function  rt_snapVerification(StrategyType,FolderName)
                 
                 
                 %% CompoundMotionComposition_layer
-                 if (ForceCell{axisIndex}{17}+2 <= ForceCell{axisIndex}{11})
-                    [hasNew_cm, data_new, ForceCell{axisIndex}{17}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{17}, 0);
+                 if (ForceCell{axisIndex}{15}+2 <= ForceCell{axisIndex}{11})
+                    [hasNew_cm, data_new, ForceCell{axisIndex}{15}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{15}, 0);
                     if (hasNew_cm)
                         ForceCell{axisIndex}{3}(ForceCell{axisIndex}{4},:) = data_new;
                         % Increase counter
@@ -256,8 +256,8 @@ function  rt_snapVerification(StrategyType,FolderName)
                 
                 
                 %% Last iteration of compound motion layer  
-                while (ForceCell{axisIndex}{17}+1 <= ForceCell{axisIndex}{11})
-                    [hasNew_cm, data_new, ForceCell{axisIndex}{17}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{17}, 0);
+                while (ForceCell{axisIndex}{15}+1 <= ForceCell{axisIndex}{11})
+                    [hasNew_cm, data_new, ForceCell{axisIndex}{15}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{15}, 0);
                     if (hasNew_cm)
                         ForceCell{axisIndex}{3}(ForceCell{axisIndex}{4},:) = data_new;
                         % Increase counter
@@ -265,8 +265,8 @@ function  rt_snapVerification(StrategyType,FolderName)
                     end
                 end
                 
-                if (ForceCell{axisIndex}{17} == ForceCell{axisIndex}{11})
-                    [hasNew_cm, data_new, ForceCell{axisIndex}{17}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{17}, 1);
+                if (ForceCell{axisIndex}{15} == ForceCell{axisIndex}{11})
+                    [hasNew_cm, data_new, ForceCell{axisIndex}{15}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{15}, 1);
                     if (hasNew_cm)
                         ForceCell{axisIndex}{3}(ForceCell{axisIndex}{4},:) = data_new;
                     end                    
