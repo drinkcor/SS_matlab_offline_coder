@@ -61,7 +61,7 @@
 % actionLbl         - vector array of ints [10,20,30,40,50,60,70,80] -- modified July 2012. Old>>cell array containing all the actions motion
 %                     compositions
 %**************************************************************************
-function [hasNew_cmc, data_new, lookForRepeat, numRepeat, repeat_Lbl, maxAmplitude, marker_cmc] = rt_MotCompsCleanUp(motComps,lookForRepeat, numRepeat, repeat_Lbl, maxAmplitude, marker_cmc)
+function [hasNew_cmc, data_new, lookForRepeat, numRepeat, maxAmplitude, marker_cmc] = rt_MotCompsCleanUp(motComps,lookForRepeat, numRepeat, maxAmplitude, marker_cmc)
 
 %% Initialization
     
@@ -73,8 +73,15 @@ function [hasNew_cmc, data_new, lookForRepeat, numRepeat, repeat_Lbl, maxAmplitu
     MAG_WINDOW_AD_ID = 0.50; 
     
     % Threshold used for combs of increase/constant/decrease
-    AMP_WINDOW_IKD = 1.50;
+    AMP_WINDOW_IKD = 0.9;
     MAG_WINDOW_IKD = 1.00; 
+    
+    % Threshold used for combs of absolutely dominate
+    AMP_WINDOW_DOM = 0.8;
+    MAG_WINDOW_DOM = 0.8; 
+    TIME_WINDOW_DOM = 0.8;
+    
+    TIME_DURATION  = 0;
     
     % Threshold used for combs of pimp/nimp
     AMP_WINDOW_PC_NC = 0.1; 
@@ -152,6 +159,7 @@ function [hasNew_cmc, data_new, lookForRepeat, numRepeat, repeat_Lbl, maxAmplitu
     % SIM_TIME_STEP   = 1/rate;                % Uses OpenHRP3.0 version
 
     checkPairs      = 0;
+    keepCheck       = true;
             
     % Do this until there are no more repitions in the entire data
     % (multiple loops)    
@@ -193,7 +201,7 @@ function [hasNew_cmc, data_new, lookForRepeat, numRepeat, repeat_Lbl, maxAmplitu
 %%  Compare labels (int type's) of contiguous MCs)
     if (lookForRepeat)
         
-        if( intcmp(motComps(i,ACTN_LBL),repeat_Lbl) )
+        if( intcmp(motComps(i,ACTN_LBL),motComps(match,ACTN_LBL)) )
             lookForRepeat   = true;
             numRepeat       = numRepeat+1;
             marker_cmc      = marker_cmc+1;
@@ -201,65 +209,24 @@ function [hasNew_cmc, data_new, lookForRepeat, numRepeat, repeat_Lbl, maxAmplitu
             % Merge as many primitives as are repeated
             nextPrimitive   = numRepeat;
             startPrimitive  = i-numRepeat;
-            
-            % if the repeated number is ==1, take it as 2 MC merging rather
-            % than repeated merging. And then decide how to merge
-            if((numRepeat==1))       
-                
-                % if the MC's label is constant, there's no need to decide how to merge
-                if(repeat_Lbl~=constant)
-                    
-                    ampRatio    = motComps(i-1,AMPLITUDE_VAL)/motComps(i,AMPLITUDE_VAL);
-                    % if(ampRatio==0 || ampRatio==inf)      % This would never happen
-                    if(ampRatio > lengthRatio || ampRatio < inv(lengthRatio)) 
-                    % For pairs that have same action_Lbl, if there
-                    % amplitude differ too much, 
-                    
-                        c1duration = motComps(i-1,T2E)-motComps(i-1,T1S);   % Get duration of first composition
-                        c2duration = motComps(i,T2E)-motComps(i,T1S);       % Get duration of second composition
-                        % if(c1duration == 0 || c2duration == 0)            % This would never happen, because we have throw away primitives whose duration is 0 in rt_primMatchEval.m
-                        
-                        if(c1duration/c2duration > lengthRatio)             % 0, means merge second MC to first MC
-                            nextPrimitive=0;
-                        elseif(c1duration/c2duration < 1/lengthRatio)
-                            nextPrimitive=1;                                % 1, means merge first MC to second MC
-                        else
-                            nextPrimitive=-1;                               % -1, means use average time to merge
-                        end
-                    else
-                        nextPrimitive=-1;
-                    end
-                else
-                    nextPrimitive=-1;
-                end
-            else
-                % if the repeated number is >1, keep the value so that it
-                % can be processed as repeated condition
-            end
+ 
+            repeat_Lbl      = motComps(i,ACTN_LBL);
             data_new        = rt_MergeCompositions(startPrimitive,motComps,actionLbl,repeat_Lbl,nextPrimitive); % The third argument is gradLabels but it is not used.
-            checkPairs      = 1;
             hasNew_cmc      = 1;
-            % Produced a new motComps, check it's time duration context and
-            % 
-            
+            marker_cmc       = marker_cmc+1;
             
             lookForRepeat   = false;
-            numRepeat       = 0;
-            repeat_Lbl      = 0;
-            marker_cmc       = marker_cmc+1;
+            numRepeat       = 0;    
         end 
     else
         if( intcmp(motComps(i,ACTN_LBL),motComps(match,ACTN_LBL)) )
             lookForRepeat   = true;
             numRepeat       = numRepeat+1;
-            repeat_Lbl      = motComps(i,ACTN_LBL);
             marker_cmc      = marker_cmc+1;
         else
             % Go ahead to check (2):Time duration context
             lookForRepeat   = false;
             numRepeat       = 0;
-            repeat_Lbl      = 0;
-            data_new        = motComps(i,:);
             checkPairs      = 1;
         end         
 
@@ -283,134 +250,105 @@ function [hasNew_cmc, data_new, lookForRepeat, numRepeat, repeat_Lbl, maxAmplitu
             end            
         end
        
-        %%	2) For patterns of a+i or a+d or d+a or d+i, merge if similar. 
+        %%	1) For patterns of a+i or a+d or d+a or d+i, merge if similar. 
         % If there are contiguous i+d or d+i with similar average values
         % (within 10% of each other),merge them into an adjustment.    
 
-        % If 'a+i' or 'a+d' or 'i+a' or 'd+a'
-        if( (intcmp(motComps(index,ACTN_LBL),actionLbl(adjustment)) && intcmp(motComps(match,ACTN_LBL),actionLbl(increase))) || ...
-                (intcmp(motComps(index,ACTN_LBL),actionLbl(adjustment)) && intcmp(motComps(match,ACTN_LBL),actionLbl(decrease))) || ...
-                     (intcmp(motComps(index,ACTN_LBL),actionLbl(increase)) && intcmp(motComps(match,ACTN_LBL),actionLbl(adjustment))) || ...
-                        (intcmp(motComps(index,ACTN_LBL),actionLbl(decrease)) && intcmp(motComps(match,ACTN_LBL),actionLbl(adjustment))) )
+        % If 'a+i' or 'a+d' or 'i+a' or 'd+a' or 'i+d' or 'd+i'
+        if( (intcmp(motComps(i,ACTN_LBL),actionLbl(adjustment)) && intcmp(motComps(match,ACTN_LBL),actionLbl(increase))) || ...
+                (intcmp(motComps(i,ACTN_LBL),actionLbl(adjustment)) && intcmp(motComps(match,ACTN_LBL),actionLbl(decrease))) || ...
+                (intcmp(motComps(i,ACTN_LBL),actionLbl(increase)) && intcmp(motComps(match,ACTN_LBL),actionLbl(adjustment))) || ...
+                (intcmp(motComps(i,ACTN_LBL),actionLbl(decrease)) && intcmp(motComps(match,ACTN_LBL),actionLbl(adjustment))) || ...
+                (intcmp(motComps(i,ACTN_LBL),actionLbl(decrease))&& intcmp(motComps(match,ACTN_LBL),actionLbl(increase))) || ...
+                (intcmp(motComps(i,ACTN_LBL),actionLbl(increase))&& intcmp(motComps(match,ACTN_LBL),actionLbl(decrease))) )
             
-            % If they have the similar amplitude (50%)             
-            perc1 = computePercentageThresh(motComps,index,AMPLITUDE_VAL,AMP_WINDOW_AD_ID);            
-            if(perc1)       
+            % If they have the similar amplitude (50%)
+            perc1 = rt_computePercentageThresh(motComps,i,AMPLITUDE_VAL,AMP_WINDOW_AD_ID);
+            if(perc1)
                 
                 % If their average value is within 100% of each other
-                perc2 = computePercentageThresh(motComps,index,AVG_MAG_VAL,MAG_WINDOW_AD_ID);            
-                if(perc2)                
-                    % Merge as adjustment into the first element, adjust times,
-                    % and then empty the second composition
-                    % Merge the second MC to the first one
-                    if(data(index,ACT_LBL)=='a')
-                        combineFlag=1;
-                    % Merge the first MC to the second one
-                    elseif(data(match,ACT_LBL)=='a')
-                        combineFlag=0;
-                    end
-                    LABEL_FLAG      = true;
-                    AMPLITUDE_FLAG  = true;
-                    motComps = MergeCompositions(index,motComps,actionLbl,adjustment,LABEL_FLAG,AMPLITUDE_FLAG,1);
-                end                
-            end                        
-        end     
-    
-        %% 3) ik/ki/dk/kd compositions that are contiguous that have similar amplitude and their avg value is within 50% to each other, merge as constant
-
-        if( (intcmp(motComps(index,ACTN_LBL),actionLbl(increase))&& intcmp(motComps(match,ACTN_LBL),actionLbl(constant))) || ...
-             (intcmp(motComps(index,ACTN_LBL),actionLbl(constant))&& intcmp(motComps(match,ACTN_LBL),actionLbl(increase))) || ...
-                (intcmp(motComps(index,ACTN_LBL),actionLbl(decrease))&& intcmp(motComps(match,ACTN_LBL),actionLbl(constant))) || ...
-                    (intcmp(motComps(index,ACTN_LBL),actionLbl(constant))&& intcmp(motComps(match,ACTN_LBL),actionLbl(decrease))) || ...
-                        (intcmp(motComps(index,ACTN_LBL),actionLbl(decrease))&& intcmp(motComps(match,ACTN_LBL),actionLbl(increase))) || ...
-                            (intcmp(motComps(index,ACTN_LBL),actionLbl(increase))&& intcmp(motComps(match,ACTN_LBL),actionLbl(decrease))) )
-                
-            % If they have the similar amplitude (150%)     
-            perc1 = computePercentageThresh(motComps,index,AMPLITUDE_VAL,AMP_WINDOW_IKD);            
-            if(perc1)       
-                
-                % If their average value is within 100% of each other
-                perc2 = computePercentageThresh(motComps,index,AVG_MAG_VAL,MAG_WINDOW_IKD);            
-                if(perc2)                
-
-                    LABEL_FLAG      = true;
-                    AMPLITUDE_FLAG  = true;
-                    % Merge the first MC to the second one
-                    if(data(index,ACT_LBL)=='K')
-                        combineFlag=1;
-                    % Merge the second MC to the first one
-                    elseif(data(match,ACT_LBL)=='K')
-                        combineFlag=0;
-                    end
-                    motComps = MergeCompositions(index,motComps,actionLbl,constant,LABEL_FLAG,AMPLITUDE_FLAG,1);
+                perc2 = rt_computePercentageThresh(motComps,i,AVG_MAG_VAL,MAG_WINDOW_AD_ID);
+                if(perc2)
+                    
+                    data_new    = rt_MergeCompositions(i,motComps,actionLbl,adjustment,1);
+                    hasNew_cmc  = 1;
+                    marker_cmc  = marker_cmc+2;
+                    
+                    keepCheck   = false;
                 end
             end
         end
     
         
-        %%  TIME DURATION CONTEXT - MERGE AND MODIFY Composite Actions
-       
-        % If it is not a contact label compare the times.
-        if(~intcmp(motComps(i,ACTN_LBL),actionLbl(pos_contact)) && ~intcmp(motComps(match,ACTN_LBL),actionLbl(pos_contact)) &&...
-                ~intcmp(motComps(i,ACTN_LBL),actionLbl(neg_contact)) && ~intcmp(motComps(match,ACTN_LBL),actionLbl(neg_contact)) &&...
+        %% 2) ik/ki/dk/kd compositions that are contiguous that have similar amplitude and their avg value is within 50% to each other, merge as constant
+        if(keepCheck)
+            if( (intcmp(motComps(i,ACTN_LBL),actionLbl(increase))&& intcmp(motComps(match,ACTN_LBL),actionLbl(constant))) || ...
+                    (intcmp(motComps(i,ACTN_LBL),actionLbl(constant))&& intcmp(motComps(match,ACTN_LBL),actionLbl(increase))) || ...
+                    (intcmp(motComps(i,ACTN_LBL),actionLbl(decrease))&& intcmp(motComps(match,ACTN_LBL),actionLbl(constant))) || ...
+                    (intcmp(motComps(i,ACTN_LBL),actionLbl(constant))&& intcmp(motComps(match,ACTN_LBL),actionLbl(decrease))) )
+                
+                % If they have the similar amplitude (150%)
+                perc1 = rt_computePercentageThresh(motComps,i,AMPLITUDE_VAL,AMP_WINDOW_IKD);
+                if(perc1)
+                    % If their average value is within 100% of each other
+                    perc2 = rt_computePercentageThresh(motComps,i,AVG_MAG_VAL,MAG_WINDOW_IKD);
+                    if(perc2)
+                        data_new    = rt_MergeCompositions(i,motComps,actionLbl,constant,1);
+                        hasNew_cmc  = 1;
+                        marker_cmc  = marker_cmc+2;
+                        
+                        keepCheck   = false;
+                    end
+                end
+            end
+        else
+            % Do nothing here
+        end
+        
+        
+        %% 3) TIME DURATION CONTEXT - MERGE AND MODIFY Composite Actions
+        if(keepCheck)
+            % If it is not a contact label compare the times.
+            if(~intcmp(motComps(i,ACTN_LBL),actionLbl(pos_contact)) && ~intcmp(motComps(match,ACTN_LBL),actionLbl(pos_contact)) &&...
+                    ~intcmp(motComps(i,ACTN_LBL),actionLbl(neg_contact)) && ~intcmp(motComps(match,ACTN_LBL),actionLbl(neg_contact)) &&...
                     ~intcmp(motComps(i,ACTN_LBL),actionLbl(contact)) && ~intcmp(motComps(match,ACTN_LBL),actionLbl(contact)) )
                 
-            % (1) Get Amplitude of primitives inside compositions
-            amp1 = abs(motComps(i,AMPLITUDE_VAL));      % Absolute value of amplitude of first composition
-            amp2 = abs(motComps(match,AMPLITUDE_VAL));     % Absolute value of amplitude of second composition
-            
-            % Compute ratio of 2nd primitive vs 1st primitive
-            ampRatio = amp2/amp1;
-            
-            if(ampRatio > lengthRatio || ampRatio < inv(lengthRatio))  
-                % contains the condition: " if(ampRatio==0 || ampRatio==inf) " which means we meet a constant
-                % we process constant in the followed context rather than in this context.
-                
-                % If this is true, their amp difference is too huge, don't merge them, don't do anything else
-                
-            % Durations
-            else                   
-                
-                % Get Duration of primitives inside compositions
-                c1duration = motComps(i,T2E)-motComps(i,T1S);       % Get duration of first composition
-                c2duration = motComps(match,T2E)-motComps(match,T1S);   % Get duration of second composition
-                % if(c1duration == 0 || c2duration == 0)            % This would never happen, because we have throw away primitives whose duration is 0 in rt_primMatchEval.m
-
-                % If the comparative length of either composition is superior, merge
-                ratio = c1duration/c2duration;
-
-                % Assign appropriate primitive label to variable to change the
-                % motion composition label as it corresponds to the right
-                % action
-                if(ratio > lengthRatio)
-                    % Merge the second unto the first
-                    mergeTo            = 0;
-
-                    % Find the type of action label that we have to pass to
-                    % MergeCompositions
-                    actionLblIndex = motComps(match,ACTN_LBL);
-
-                    % Merge unto the first composition
-                    data_new        = MergeCompositions(i,motComps,actionLbl,actionLblIndex,mergeTo);           
-                    marker_cmc      = marker_cmc+2;
-                elseif(ratio < inv(lengthRatio))  
-                    % Merge the first unto the second
-                    mergeTo            = 1;
-
-                    % Find the type of action label that we have to pass to
-                    % MergeCompositions
-                    actionLblIndex = motComps(match,ACTN_LBL);
-
-                    % Merge unto the SECOND composition
-                    data_new        = MergeCompositions(match,motComps,actionLbl,actionLblIndex,mergeTo);  % The last argument represents 2nd composition         
-                    marker_cmc      = marker_cmc+2;
-                end            
+                [perc1,biggerOne_amp] = rt_computePercentageThresh(motComps,i,AMPLITUDE_VAL,AMP_WINDOW_DOM);
+                % If their amplitude isn't similar
+                if(~perc1)
+                    [perc2,biggerOne_mag] = rt_computePercentageThresh(motComps,i,AVG_MAG_VAL,MAG_WINDOW_DOM);
+                    % If their average value isn't similar
+                    if(~perc2)
+                        [perc3,biggerOne_time] = rt_computePercentageThresh(motComps,i,TIME_DURATION,TIME_WINDOW_DOM);
+                        % If their time duration isn't similar
+                        if(~perc3)
+                            % If one MC is absolutely dominating
+                            if((biggerOne_amp==biggerOne_mag)&&(biggerOne_mag==biggerOne_time))
+                                if(biggerOne_amp==-1)
+                                    action_Lbl = motComps(i,ACTN_LBL);
+                                elseif (biggerOne_amp==1)
+                                    action_Lbl = motComps(match,ACTN_LBL);
+                                end
+                                data_new    = rt_MergeCompositions(i,motComps,actionLbl,action_Lbl,1);
+                                hasNew_cmc  = 1;
+                                marker_cmc  = marker_cmc+2;
+                                
+                                keepCheck   = false;
+                                
+                            end
+                        end                       
+                    end
+                end
             end
+        else
+            % Do nothing here
         end
-    end
-    
-
-  end 
-
+        
+        if(keepCheck==true)        
+                % Can't find matched pairs, save the current MC
+                data_new    = motComps(i,:);
+                hasNew_cmc  = 1;
+                marker_cmc  = marker_cmc+1;            
+        end
              
 end

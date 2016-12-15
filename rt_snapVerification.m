@@ -1,6 +1,6 @@
 % % Structure of ForcePicture: (Copy to a fixed structure(sliced varialbe in parfor) for post-processing)
 % ForceCell= {-
-%                 Fx = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex, dataFit_pre, wStart, marker, statData_pc, pc_index, lookForRepeat, numberRepeated, marker_pc, marker_cm}
+%                 Fx = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex, dataFit_pre, wStart, marker, statData_pc, pc_index, lookForRepeat, numberRepeated, marker_pc, marker_cm, }
 %                 Fy = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex }
 %                 Fz = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex }
 %                 Mx = { statData, segmentIndex, motComs, compouIndex, llbehStruc, llbehIndex }
@@ -98,10 +98,18 @@ function  rt_snapVerification(StrategyType,FolderName)
         ForceCell{axisIndex}{14} = 1;               % marker
         
         % Variables for CompoundMotionComposition layer
-        ForceCell{axisIndex}{3} = zeros(100,11);    % CompoundMotionComposition layer data
-        ForceCell{axisIndex}{4} = 1;                % CompoundMotionComposition layer index
-        
+        ForceCell{axisIndex}{3}  = zeros(100,11);   % CompoundMotionComposition layer data
+        ForceCell{axisIndex}{4}  = 1;               % CompoundMotionComposition layer index
         ForceCell{axisIndex}{15} = 1;               % marker
+        
+        % Variables for CompoundMotionComposition layer CleanUp
+        ForceCell{axisIndex}{16} = zeros(100,11);   % CompoundMotionComposition layer CleanUp data
+        ForceCell{axisIndex}{17} = 1;               % CompoundMotionComposition layer CleanUp index
+        ForceCell{axisIndex}{18} = 0;               % lookForRepeat, 0 means not looking for repeat, 1 means looking for repeat
+        ForceCell{axisIndex}{19} = 0;               % numberRepeated
+        ForceCell{axisIndex}{20} = 0;               % maxAmplitude
+        ForceCell{axisIndex}{21} = 1;               % marker_cmc
+         
     end
     
     
@@ -159,9 +167,17 @@ function  rt_snapVerification(StrategyType,FolderName)
                     end
                  end
                 
-                
+
+
                  %% CompoundMotionComposition_layer clean up
-                 
+                 if (ForceCell{axisIndex}{21}+2 <= ForceCell{axisIndex}{4})
+                    [hasNew_cmc, data_new, ForceCell{axisIndex}{18}, ForceCell{axisIndex}{19}, ForceCell{axisIndex}{20}, ForceCell{axisIndex}{21}] = rt_MotCompsCleanUp(ForceCell{axisIndex}{3},  ForceCell{axisIndex}{18}, ForceCell{axisIndex}{19}, ForceCell{axisIndex}{20}, ForceCell{axisIndex}{21});
+                    if (hasNew_cmc)
+                        ForceCell{axisIndex}{16}(ForceCell{axisIndex}{17},:) = data_new;
+                        % Increase counter
+                        ForceCell{axisIndex}{17} = ForceCell{axisIndex}{17}+1;
+                    end
+                 end
                  
                  
                  
