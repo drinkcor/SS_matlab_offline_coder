@@ -374,7 +374,7 @@ function [hasNew_cm,motComps,index]=rt_primMatchEval(index,labelType,lbl,statDat
                 
 
                 
-%%          POSITIVE LABEL followed by NIMP = NEG_CONTACT
+%%          POSITIVE LABEL followed by NIMP = CONTACT
             %  Need a flag to see if we get constant repeat or a single
             %  case for the length of the window
             elseif( strcmp(gradInt2gradLbl(statData(match,7)), gradLabels(NIMP,:)) )  % match is the index that looks ahead. 
@@ -386,7 +386,7 @@ function [hasNew_cm,motComps,index]=rt_primMatchEval(index,labelType,lbl,statDat
                 [amplitudeVal,~,~] = rt_computeAmp(p1,p2); 
                 
                 % Contact
-                actnClass = actionLbl(neg_contact);
+                actnClass = actionLbl(contact);                         % This should be contact, not neg_contact
                 
                 % Gradient labels
                 glabel1 = gradLbl2gradInt(gradLabels(lbl,:));             % Positive
@@ -619,7 +619,7 @@ function [hasNew_cm,motComps,index]=rt_primMatchEval(index,labelType,lbl,statDat
                     end
                 end
  
-%%          NEGATIVE LABEL followed by PIMP = POS_CONTACT
+%%          NEGATIVE LABEL followed by PIMP = CONTACT
             %  Need a flag to see if we get constant repeat or a single
             %  case for the length of the window
             elseif(strcmp(gradInt2gradLbl(statData(match,7)), gradLabels(PIMP,:)))  % match is the index that looks ahead.           
@@ -632,7 +632,7 @@ function [hasNew_cm,motComps,index]=rt_primMatchEval(index,labelType,lbl,statDat
                 [amplitudeVal,~,~] = rt_computeAmp(p1,p2);                
                 
                 % Class: contact
-                actnClass = actionLbl(pos_contact);                % pos_contact   
+                actnClass = actionLbl(contact);                 % this shouldn't be pos_contact, should be contact   
                 
                 % Gradient labels
                 glabel1 = gradLbl2gradInt(gradLabels(lbl,:));             % Negative
