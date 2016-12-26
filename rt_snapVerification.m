@@ -42,18 +42,34 @@ function  rt_snapVerification(StrategyType,FolderName)
     NIMP            = 9;        % large neg gradient
   % NONE            = 10;       % none
 
-    % Amplitude Indeces
-    mxAmp           = 2;  
-    minAmp          = 3;
+  
+    % Primitives Structure Indeces
+    p_mxAmp           = 2;  
+    p_minAmp          = 3;
     % Time Indeces
-    T1S             = 4; 
-    T1E             = 5; 
+    p_T1S             = 4; 
+    p_T1E             = 5; 
     % Grad label Indeces
-    GRAD_LBL        = 7;
-    
-    lengthRatio     = 5;  % Empirically set
-    amplitudeRatio  = 2;
+    p_GRAD_LBL        = 7;
+    % Empirically set
+    p_lengthRatio     = 5;  
+    p_amplitudeRatio  = 2;
 
+    
+ 
+    % Mot Comps Structure Indeces
+    mc_ACTN_LBL         = 1;   % action class
+    mc_AVG_MAG_VAL      = 2;   % average value
+    mc_RMS_VAL          = 3;   % rms value, which is max value too
+    mc_AMPLITUDE_VAL    = 4;   % amplitude value 
+    % Labels
+    mc_P1LBL = 5; mc_P2LBL = 6;   % label indeces for both primitives
+    % Time Indeces
+    T1S = 7; T1E = 8;
+    T2S = 9; T2E = 10;    
+    TAVG_INDEX   = 11;
+    
+    
     global globalIndex;
     global Wrench;
     global Wrench_new;
@@ -85,26 +101,26 @@ function  rt_snapVerification(StrategyType,FolderName)
     for axisIndex = 1:6
         % Variables for Primitive layer
         ForceCell{axisIndex}{1} = zeros(100,7);     % primitive layer data
-        ForceCell{axisIndex}{2} = 1;                % primitive layer index
+        ForceCell{axisIndex}{2} = 0;                % primitive layer index
         ForceCell{axisIndex}{7} = nan;              % dataFit_pre
         ForceCell{axisIndex}{8} = 1;                % wStart
         ForceCell{axisIndex}{9} = 1;                % marker
         
         % Variables for Primitive layer CleanUp 
         ForceCell{axisIndex}{10} = zeros(100,7);    % primitive layer CleanUp data
-        ForceCell{axisIndex}{11} = 1;               % primitive layer CleanUp index        
+        ForceCell{axisIndex}{11} = 0;               % primitive layer CleanUp index        
         ForceCell{axisIndex}{12} = 0;               % lookForRepeat, 0 means not looking for repeat, 1 means looking for repeat
         ForceCell{axisIndex}{13} = 0;               % numberRepeated
         ForceCell{axisIndex}{14} = 1;               % marker
         
         % Variables for CompoundMotionComposition layer
         ForceCell{axisIndex}{3}  = zeros(100,11);   % CompoundMotionComposition layer data
-        ForceCell{axisIndex}{4}  = 1;               % CompoundMotionComposition layer index
+        ForceCell{axisIndex}{4}  = 0;               % CompoundMotionComposition layer index
         ForceCell{axisIndex}{15} = 1;               % marker
         
         % Variables for CompoundMotionComposition layer CleanUp
         ForceCell{axisIndex}{16} = zeros(100,11);   % CompoundMotionComposition layer CleanUp data
-        ForceCell{axisIndex}{17} = 1;               % CompoundMotionComposition layer CleanUp index
+        ForceCell{axisIndex}{17} = 0;               % CompoundMotionComposition layer CleanUp index
         ForceCell{axisIndex}{18} = 0;               % lookForRepeat, 0 means not looking for repeat, 1 means looking for repeat
         ForceCell{axisIndex}{19} = 0;               % numberRepeated
         ForceCell{axisIndex}{20} = 0;               % maxAmplitude
@@ -136,46 +152,48 @@ function  rt_snapVerification(StrategyType,FolderName)
                     fprintf('wStart: %1.0f  ',ForceCell{axisIndex}{8});
                     [hasNew_p,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9}] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,pType,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9},rate,axisIndex);    % fit window
                     if(hasNew_p)
-                        % Keep history of statistical data 
-                        ForceCell{axisIndex}{1}(ForceCell{axisIndex}{2},:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
                         % Increase counter
                         ForceCell{axisIndex}{2} = ForceCell{axisIndex}{2}+1;
+                        % Keep history of primitive layer data 
+                        ForceCell{axisIndex}{1}(ForceCell{axisIndex}{2},:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
                     end
                 end
 
                 
                 %% Primitive_layer clean up    
-                if (ForceCell{axisIndex}{14}+2 <= ForceCell{axisIndex}{2})
+                if (ForceCell{axisIndex}{14}+1 <= ForceCell{axisIndex}{2})
                     [hasNew_pc,data_new, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14}] = rt_primitivesCleanUp(ForceCell{axisIndex}{1}, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14});
                     if (hasNew_pc)
-                        % Keep history of statistical data 
-                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = data_new;
                         % Increase counter
                         ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
+                        % Keep history of primitive layer clean up data 
+                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = data_new;
                     end
                      
                 end
                 
                 
                 %% CompoundMotionComposition_layer
-                 if (ForceCell{axisIndex}{15}+2 <= ForceCell{axisIndex}{11})
+                 if (ForceCell{axisIndex}{15}+1 <= ForceCell{axisIndex}{11})
                     [hasNew_cm, data_new, ForceCell{axisIndex}{15}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{15}, 0);
                     if (hasNew_cm)
-                        ForceCell{axisIndex}{3}(ForceCell{axisIndex}{4},:) = data_new;
                         % Increase counter
                         ForceCell{axisIndex}{4} = ForceCell{axisIndex}{4}+1;
+                        % Keep history of MC layer data
+                        ForceCell{axisIndex}{3}(ForceCell{axisIndex}{4},:) = data_new;
                     end
                  end
                 
 
 
                  %% CompoundMotionComposition_layer clean up
-                 if (ForceCell{axisIndex}{21}+2 <= ForceCell{axisIndex}{4})
+                 if (ForceCell{axisIndex}{21}+1 <= ForceCell{axisIndex}{4})
                     [hasNew_cmc, data_new, ForceCell{axisIndex}{18}, ForceCell{axisIndex}{19}, ForceCell{axisIndex}{20}, ForceCell{axisIndex}{21}] = rt_MotCompsCleanUp(ForceCell{axisIndex}{3},  ForceCell{axisIndex}{18}, ForceCell{axisIndex}{19}, ForceCell{axisIndex}{20}, ForceCell{axisIndex}{21});
                     if (hasNew_cmc)
-                        ForceCell{axisIndex}{16}(ForceCell{axisIndex}{17},:) = data_new;
                         % Increase counter
                         ForceCell{axisIndex}{17} = ForceCell{axisIndex}{17}+1;
+                        % Keep history of MC layer clean up data
+                        ForceCell{axisIndex}{16}(ForceCell{axisIndex}{17},:) = data_new;
                     end
                  end
                  
@@ -185,9 +203,7 @@ function  rt_snapVerification(StrategyType,FolderName)
    %            [ForceCell{axisIndex}{3},ForceCell{axisIndex}{4}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{3},ForceCell{axisIndex}{4} );
 
    
-   
-                %% High layer behavior layer
-   %            [ForceCell{axisIndex}{5},ForceCell{axisIndex}{6}] = rt_llbehComposition(ForceCell{axisIndex}{3},ForceCell{axisIndex}{4},ForceCell{axisIndex}{5},ForceCell{axisIndex}{6});
+                %% Low layer behavior layer clean up
 
                 
    
@@ -213,84 +229,86 @@ function  rt_snapVerification(StrategyType,FolderName)
 
                 [dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel]=rt_statisticalData(Time(1)*(1/rate),Time(length(Time))*(1/rate),dataFit,polyCoeffs,FolderName,StrategyType,axisIndex); % 1+windowlength
     
+                ForceCell{axisIndex}{2} = ForceCell{axisIndex}{2}+1;
+                
                 ForceCell{axisIndex}{1}(ForceCell{axisIndex}{2},:) = [dAvg dMax dMin dStart dFinish dGradient dLabel];
+                
+                
+                
                 
                 %% Last iteration of primitive layer clean up       
                 %  In the last iteration of primitive layer clean up, 1 or 2 new items will certainly be appended to primitive layer clean up data
-                if (ForceCell{axisIndex}{12})
-                        if ( intcmp(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},GRAD_LBL),ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,GRAD_LBL)) )
-                            nextPrimitive   = ForceCell{axisIndex}{13}+1;
-                            startPrimitive  = ForceCell{axisIndex}{14}-ForceCell{axisIndex}{13};
-                            ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = rt_MergePrimitives(startPrimitive,ForceCell{axisIndex}{1},nextPrimitive);
-                        else
-                            nextPrimitive   = ForceCell{axisIndex}{13};
-                            startPrimitive  = ForceCell{axisIndex}{14}-ForceCell{axisIndex}{13};
-                            ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = rt_MergePrimitives(startPrimitive,ForceCell{axisIndex}{1},nextPrimitive);
-                            ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
-                            ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,:);
-                        end
+                while (ForceCell{axisIndex}{14}+1 <= ForceCell{axisIndex}{2})
+                    [hasNew_pc,data_new, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14}] = rt_primitivesCleanUp(ForceCell{axisIndex}{1}, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14});
+                    if (hasNew_pc)
+                        % Increase counter
+                        ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
+                        % Keep history of primitive layer clean up data 
+                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = data_new;
+                    end
+                end
+                   
+                if (ForceCell{axisIndex}{14} == ForceCell{axisIndex}{2})
+                    if (ForceCell{axisIndex}{12}) % if looking for repeat
+                        nextPrimitive   = ForceCell{axisIndex}{13};
+                        startPrimitive  = ForceCell{axisIndex}{14}-ForceCell{axisIndex}{13};
+                        ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
+                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = rt_MergePrimitives(startPrimitive,ForceCell{axisIndex}{1},nextPrimitive);
                     else
-                        if  ( intcmp(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},GRAD_LBL),ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,GRAD_LBL)) )
-                            nextPrimitive   = 1;
-                            startPrimitive  = ForceCell{axisIndex}{14};
-                            ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = rt_MergePrimitives(startPrimitive,ForceCell{axisIndex}{1},nextPrimitive);
-                        else
-                            if ( ~intcmp(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},GRAD_LBL),PIMP) && ~intcmp(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},GRAD_LBL),NIMP) ) 
-                                amp1 = abs(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},mxAmp)-ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},minAmp));
-                                amp2 = abs(ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,mxAmp)-ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,minAmp));
-                                ampRatio = amp2/amp1;       
-                            
-                                if (ampRatio <= amplitudeRatio && ampRatio >= inv(amplitudeRatio) && ampRatio~=0 && ampRatio~=inf )
-                                    p1time = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},T1E)-ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},T1S);       % Get duration of first primitive
-                                    p2time = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,T1E)-ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,T1S);   % Get duration of second primitive    
-                                    ratio  = p1time/p2time;
-
-                                    if(ratio~=0 && ratio~=inf && ratio > lengthRatio)
-                                        thisPrim = 0;            % First primitive is longer
-                                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:)  = rt_MergePrimitives(ForceCell{axisIndex}{14},ForceCell{axisIndex}{1},thisPrim);
-                                    elseif(ratio~=0 && ratio~=inf && ratio < inv(lengthRatio))
-                                        nextPrim = 0;            % Second primitive is longer
-                                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:)  = rt_MergePrimitives(ForceCell{axisIndex}{14},ForceCell{axisIndex}{1},nextPrim);
-                                    else
-                                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},:);
-                                        ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
-                                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,:);
-                                    end
-                                else
-                                    ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},:);
-                                    ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
-                                    ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,:);
-                                end
-                            else
-                                ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},:);
-                                ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
-                                ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14}+1,:);
-                            end
-                        end
-                end  
-                  
+                        ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
+                        ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = ForceCell{axisIndex}{1}(ForceCell{axisIndex}{14},:);
+                    end
+                end                                
+                
+                
+                
                 
                 
                 %% Last iteration of compound motion layer  
                 while (ForceCell{axisIndex}{15}+1 <= ForceCell{axisIndex}{11})
                     [hasNew_cm, data_new, ForceCell{axisIndex}{15}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{15}, 0);
                     if (hasNew_cm)
-                        ForceCell{axisIndex}{3}(ForceCell{axisIndex}{4},:) = data_new;
                         % Increase counter
                         ForceCell{axisIndex}{4} = ForceCell{axisIndex}{4}+1;
+                        ForceCell{axisIndex}{3}(ForceCell{axisIndex}{4},:) = data_new;
                     end
                 end
                 
                 if (ForceCell{axisIndex}{15} == ForceCell{axisIndex}{11})
                     [hasNew_cm, data_new, ForceCell{axisIndex}{15}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{10}, ForceCell{axisIndex}{15}, 1);
                     if (hasNew_cm)
+                        % Increase counter
+                        ForceCell{axisIndex}{4} = ForceCell{axisIndex}{4}+1;
                         ForceCell{axisIndex}{3}(ForceCell{axisIndex}{4},:) = data_new;
                     end                    
                 end
                 
                 
-                %% Last iteration of compound motion layer clean up  
                 
+                
+                %% Last iteration of compound motion layer clean up  
+                while (ForceCell{axisIndex}{21}+1 <= ForceCell{axisIndex}{4})
+                    [hasNew_cmc, data_new, ForceCell{axisIndex}{18}, ForceCell{axisIndex}{19}, ForceCell{axisIndex}{20}, ForceCell{axisIndex}{21}] = rt_MotCompsCleanUp(ForceCell{axisIndex}{3},  ForceCell{axisIndex}{18}, ForceCell{axisIndex}{19}, ForceCell{axisIndex}{20}, ForceCell{axisIndex}{21});
+                    if (hasNew_cmc)
+                        % Increase counter
+                        ForceCell{axisIndex}{17} = ForceCell{axisIndex}{17}+1;
+                        % Keep history of MC layer clean up data
+                        ForceCell{axisIndex}{16}(ForceCell{axisIndex}{17},:) = data_new;
+                    end
+                end
+                   
+                if (ForceCell{axisIndex}{21} == ForceCell{axisIndex}{4})
+                    if (ForceCell{axisIndex}{18}) % if looking for repeat
+                        nextPrimitive   = ForceCell{axisIndex}{19};
+                        startPrimitive  = ForceCell{axisIndex}{21}-ForceCell{axisIndex}{19};
+                        repeat_Lbl      = ForceCell{axisIndex}{3}(startPrimitive,mc_ACTN_LBL);
+                        ForceCell{axisIndex}{17} = ForceCell{axisIndex}{17}+1;
+                        ForceCell{axisIndex}{16}(ForceCell{axisIndex}{17},:) = rt_MergeCompositions(startPrimitive,ForceCell{axisIndex}{3},actionLbl,repeat_Lbl,nextPrimitive);
+                    else
+                        ForceCell{axisIndex}{17} = ForceCell{axisIndex}{17}+1;
+                        ForceCell{axisIndex}{16}(ForceCell{axisIndex}{17},:) = ForceCell{axisIndex}{3}(ForceCell{axisIndex}{21},:);
+                    end
+                end 
                 
                 
                 %% Last iteration of low layer behavior layer  
@@ -300,12 +318,6 @@ function  rt_snapVerification(StrategyType,FolderName)
                 %% Last iteration of low layer behavior layer clean up  
                 
                 
-                
-                %% Last iteration of high layer behavior layer
-                
-                
-                
-                %% Last iteration of high layer behavior layer clean up  
                 
                 
                 
