@@ -104,19 +104,19 @@ function  rt_snapVerification(StrategyType,FolderName)
         ForceCell{axisIndex}{2} = 0;                % primitive layer index
         ForceCell{axisIndex}{7} = nan;              % dataFit_pre
         ForceCell{axisIndex}{8} = 1;                % wStart
-        ForceCell{axisIndex}{9} = 1;                % marker
+        ForceCell{axisIndex}{9} = 1;                % marker_p
         
         % Variables for Primitive layer CleanUp 
         ForceCell{axisIndex}{10} = zeros(100,7);    % primitive layer CleanUp data
         ForceCell{axisIndex}{11} = 0;               % primitive layer CleanUp index        
         ForceCell{axisIndex}{12} = 0;               % lookForRepeat, 0 means not looking for repeat, 1 means looking for repeat
         ForceCell{axisIndex}{13} = 0;               % numberRepeated
-        ForceCell{axisIndex}{14} = 1;               % marker
+        ForceCell{axisIndex}{14} = 1;               % marker_pc
         
         % Variables for CompoundMotionComposition layer
         ForceCell{axisIndex}{3}  = zeros(100,11);   % CompoundMotionComposition layer data
         ForceCell{axisIndex}{4}  = 0;               % CompoundMotionComposition layer index
-        ForceCell{axisIndex}{15} = 1;               % marker
+        ForceCell{axisIndex}{15} = 1;               % marker_cm
         
         % Variables for CompoundMotionComposition layer CleanUp
         ForceCell{axisIndex}{16} = zeros(100,11);   % CompoundMotionComposition layer CleanUp data
@@ -126,6 +126,14 @@ function  rt_snapVerification(StrategyType,FolderName)
         ForceCell{axisIndex}{20} = 0;               % maxAmplitude
         ForceCell{axisIndex}{21} = 1;               % marker_cmc
          
+        % Variables for low level behaviour layer 
+        ForceCell{axisIndex}{5} = zeros(100,17);   % CompoundMotionComposition layer CleanUp data
+        ForceCell{axisIndex}{6} = 0;               % CompoundMotionComposition layer CleanUp index
+        ForceCell{axisIndex}{22} = 1;               % marker_llb
+
+        % Variables for low level behaviour layer CleanUp
+
+        
     end
     
     
@@ -200,8 +208,15 @@ function  rt_snapVerification(StrategyType,FolderName)
                  
                  
                 %% Low layer behavior layer
-   %            [ForceCell{axisIndex}{3},ForceCell{axisIndex}{4}] = rt_CompoundMotionComposition(ForceCell{axisIndex}{1},ForceCell{axisIndex}{2},ForceCell{axisIndex}{3},ForceCell{axisIndex}{4} );
-
+                if (ForceCell{axisIndex}{22}+1 <= ForceCell{axisIndex}{17})
+                    [hasNew_llb, data_new, ForceCell{axisIndex}{22}] = rt_llbehComposition(ForceCell{axisIndex}{16}, ForceCell{axisIndex}{22}, 0);
+                    if (hasNew_llb)
+                        % Increase counter
+                        ForceCell{axisIndex}{6} = ForceCell{axisIndex}{6}+1;
+                        % Keep history of MC layer data
+                        ForceCell{axisIndex}{5}(ForceCell{axisIndex}{6},:) = data_new;
+                    end
+                 end
    
                 %% Low layer behavior layer clean up
 
@@ -311,8 +326,26 @@ function  rt_snapVerification(StrategyType,FolderName)
                 end 
                 
                 
-                %% Last iteration of low layer behavior layer  
                 
+                
+                %% Last iteration of low layer behavior layer  
+                while (ForceCell{axisIndex}{22}+1 <= ForceCell{axisIndex}{17})
+                    [hasNew_llb, data_new, ForceCell{axisIndex}{22}] = rt_llbehComposition(ForceCell{axisIndex}{16}, ForceCell{axisIndex}{22}, 0);
+                    if (hasNew_llb)
+                        % Increase counter
+                        ForceCell{axisIndex}{6} = ForceCell{axisIndex}{6}+1;
+                        ForceCell{axisIndex}{5}(ForceCell{axisIndex}{6},:) = data_new;
+                    end
+                end
+                
+                if (ForceCell{axisIndex}{22} == ForceCell{axisIndex}{17})
+                    [hasNew_llb, data_new, ForceCell{axisIndex}{22}] = rt_llbehComposition(ForceCell{axisIndex}{16}, ForceCell{axisIndex}{22}, 1);
+                    if (hasNew_llb)
+                        % Increase counter
+                        ForceCell{axisIndex}{6} = ForceCell{axisIndex}{6}+1;
+                        ForceCell{axisIndex}{5}(ForceCell{axisIndex}{6},:) = data_new;
+                    end                    
+                end
                 
                 
                 %% Last iteration of low layer behavior layer clean up  
