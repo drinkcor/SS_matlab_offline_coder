@@ -350,5 +350,5 @@ function [hasNew_cmc, data_new, lookForRepeat, numRepeat, maxAmplitude, marker_c
                 hasNew_cmc  = 1;
                 marker_cmc  = marker_cmc+1;            
         end
-             
+    end
 end
