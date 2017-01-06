@@ -81,6 +81,8 @@ function  rt_snapVerification(StrategyType,FolderName)
     plotType = ['Fx';'Fy';'Fz';'Mx';'My';'Mz'];
     llbehLbl    = [ 1,   2,   3,   4,   5,   6,   7,  8];
 
+    behLbl          = 1;   % action class
+        
     localIndex  = 0;
     Wren_loc    = zeros(1000,7);
 
@@ -88,15 +90,16 @@ function  rt_snapVerification(StrategyType,FolderName)
     rosshutdown;
     rosinit;
     
-    % pub = rospublisher('/robot/limb/right/endpoint_state', 'baxter_core_msgs/EndpointState');
+    pub = rospublisher('/robot/limb/right/endpoint_state', 'baxter_core_msgs/EndpointState');
     
     wrenchHandle  = rossubscriber('/robot/limb/right/endpoint_state',@wrenchCallback, 'BufferSize', 1000);
     % wrench_node_sub = robotics.ros.Node('/wrench_node_subscriber');
     % wrenchHandle    = robotics.ros.Subscriber(wrench_node_sub,'/robot/limb/right/endpoint_state','baxter_core_msgs/EndpointState',@wrenchCallback, 'BufferSize', 1);
-    
-    % Delete any possible existing pools running previously
-    delete(gcp);
-    parpool(2);
+
+    %% Very important step: start parpool outside rt_snapVerification, just run the below in command line.
+%     % Delete any possible existing pools running previously
+%     delete(gcp);
+%     parpool(2);
     
     for axisIndex = 1:6
         % Variables for Primitive layer
@@ -127,28 +130,38 @@ function  rt_snapVerification(StrategyType,FolderName)
         ForceCell{axisIndex}{21} = 1;               % marker_cmc
          
         % Variables for low level behaviour layer 
-        ForceCell{axisIndex}{5} = zeros(100,17);   % CompoundMotionComposition layer CleanUp data
-        ForceCell{axisIndex}{6} = 0;               % CompoundMotionComposition layer CleanUp index
-        ForceCell{axisIndex}{22} = 1;               % marker_llb
+        ForceCell{axisIndex}{5}  = zeros(100,17);    % low level behaviour layer data
+        ForceCell{axisIndex}{6}  = 0;                % low level behaviour layer index
+        ForceCell{axisIndex}{22} = 1;                % marker_llb
 
         % Variables for low level behaviour layer CleanUp
-
+        ForceCell{axisIndex}{23} = zeros(100,17);    % low level behaviour layer CleanUp data
+        ForceCell{axisIndex}{24} = 0;                % low level behaviour layer CleanUp index
+        ForceCell{axisIndex}{25} = 0;                % lookForRepeat, 0 means not looking for repeat, 1 means looking for repeat
+        ForceCell{axisIndex}{26} = 0;                % numberRepeated
+        ForceCell{axisIndex}{27} = 1;                % marker_llbc
         
     end
     
     
-    rate = 40;
     window_length = 5;
     
     while(1)     
+        while (localIndex==globalIndex)
+           % Wait for input
+            pause(0.05);
+        end
+        
         while (localIndex<globalIndex)
             % Increase Counter for local index
             localIndex=localIndex+1;
             
-            Wren_loc(localIndex,2:7)  = Wrench(localIndex,2:7);                      
+            Wren_loc(localIndex,1:7)  = Wrench(localIndex,1:7);                      
             %Wren_loc_new = Wrench_new;
             
             % fprintf('\tGlobalIndex: %8f\tLocalIndex: %8f\n',globalIndex,localIndex);
+            % fprintf('\tTimeStamp: %8f\tTimeStamp.toSec: %8f\n',Wren_loc(localIndex,1),Wren_loc(localIndex,1).toSec());
+            % fprintf('\tTimeStamp: %8f\n',Wren_loc(localIndex,1));
             
             parfor axisIndex = 1:6
                 
@@ -156,9 +169,9 @@ function  rt_snapVerification(StrategyType,FolderName)
                 %% Primitive_layer
                 %  The process won't be execute unless there is enough data for fitting.
                 if (ForceCell{axisIndex}{9}+window_length <= localIndex)
-                    fprintf('marker: %1.0f  ',ForceCell{axisIndex}{9});
-                    fprintf('wStart: %1.0f  ',ForceCell{axisIndex}{8});
-                    [hasNew_p,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9}] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,pType,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9},rate,axisIndex);    % fit window
+%                     fprintf('marker: %1.0f  ',ForceCell{axisIndex}{9});
+%                     fprintf('wStart: %1.0f  ',ForceCell{axisIndex}{8});
+                    [hasNew_p,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9}] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,pType,ForceCell{axisIndex}{7},ForceCell{axisIndex}{8},ForceCell{axisIndex}{9},axisIndex);    % fit window
                     if(hasNew_p)
                         % Increase counter
                         ForceCell{axisIndex}{2} = ForceCell{axisIndex}{2}+1;
@@ -167,7 +180,7 @@ function  rt_snapVerification(StrategyType,FolderName)
                     end
                 end
 
-                
+%                 
                 %% Primitive_layer clean up    
                 if (ForceCell{axisIndex}{14}+1 <= ForceCell{axisIndex}{2})
                     [hasNew_pc,data_new, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14}] = rt_primitivesCleanUp(ForceCell{axisIndex}{1}, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14});
@@ -207,6 +220,7 @@ function  rt_snapVerification(StrategyType,FolderName)
                  
                  
                  
+                 
                 %% Low layer behavior layer
                 if (ForceCell{axisIndex}{22}+1 <= ForceCell{axisIndex}{17})
                     [hasNew_llb, data_new, ForceCell{axisIndex}{22}] = rt_llbehComposition(ForceCell{axisIndex}{16}, ForceCell{axisIndex}{22}, 0);
@@ -216,18 +230,26 @@ function  rt_snapVerification(StrategyType,FolderName)
                         % Keep history of MC layer data
                         ForceCell{axisIndex}{5}(ForceCell{axisIndex}{6},:) = data_new;
                     end
-                 end
+                end
    
+                 
                 %% Low layer behavior layer clean up
-
+                 if (ForceCell{axisIndex}{27}+1 <= ForceCell{axisIndex}{6})
+                    [hasNew_llbc, data_new, ForceCell{axisIndex}{25}, ForceCell{axisIndex}{26}, ForceCell{axisIndex}{27}] = rt_llbehCompositionCleanUp(ForceCell{axisIndex}{5},  ForceCell{axisIndex}{25}, ForceCell{axisIndex}{26}, ForceCell{axisIndex}{27});
+                    if (hasNew_llbc)
+                        % Increase counter
+                        ForceCell{axisIndex}{24} = ForceCell{axisIndex}{24}+1;
+                        % Keep history of MC layer clean up data
+                        ForceCell{axisIndex}{23}(ForceCell{axisIndex}{24},:) = data_new;
+                    end
+                 end
                 
    
             end
             drawnow;
         end 
         drawnow;
-        a=input('please input 2 to run the last iteration: ');
-        if(a==2)
+        if(localIndex==globalIndex)
         %% Last iteration to wrap up            
             parfor axisIndex = 1:6
                 
@@ -236,13 +258,13 @@ function  rt_snapVerification(StrategyType,FolderName)
                 %  In the last iteration of primitive layer, just 1 new item will certainly be appended to primitive layer data
                 wFinish     = localIndex;                            % Set to the last index of statData (the primitives space)
                 Range       = ForceCell{axisIndex}{8}:wFinish;               % Save from wStart to the immediately preceeding index that passed the threshold
-                Time        = (Range)'; % Wren_loc(Range,1);          % Time indeces that we are working with
+                Time        = Wren_loc(Range,1);          % Time indeces that we are working with
                 Data        = Wren_loc(Range,axisIndex+1); % Corresponding force data for a given force element in a given window
                 
                 polyCoeffs  = polyfit(Time,Data,1);            % First-order fit
                 dataFit     = polyval(polyCoeffs, Time);
 
-                [dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel]=rt_statisticalData(Time(1)*(1/rate),Time(length(Time))*(1/rate),dataFit,polyCoeffs,FolderName,StrategyType,axisIndex); % 1+windowlength
+                [dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel]=rt_statisticalData(Time(1),Time(length(Time)),dataFit,polyCoeffs,FolderName,StrategyType,axisIndex); % 1+windowlength
     
                 ForceCell{axisIndex}{2} = ForceCell{axisIndex}{2}+1;
                 
@@ -349,6 +371,28 @@ function  rt_snapVerification(StrategyType,FolderName)
                 
                 
                 %% Last iteration of low layer behavior layer clean up  
+                while (ForceCell{axisIndex}{27}+1 <= ForceCell{axisIndex}{6})
+                    [hasNew_llbc, data_new, ForceCell{axisIndex}{25}, ForceCell{axisIndex}{26}, ForceCell{axisIndex}{27}] = rt_llbehCompositionCleanUp(ForceCell{axisIndex}{5},  ForceCell{axisIndex}{25}, ForceCell{axisIndex}{26}, ForceCell{axisIndex}{27});
+                    if (hasNew_llbc)
+                        % Increase counter
+                        ForceCell{axisIndex}{24} = ForceCell{axisIndex}{24}+1;
+                        % Keep history of MC layer clean up data
+                        ForceCell{axisIndex}{23}(ForceCell{axisIndex}{24},:) = data_new;
+                    end
+                end
+                   
+                if (ForceCell{axisIndex}{27} == ForceCell{axisIndex}{6})
+                    if (ForceCell{axisIndex}{25}) % if looking for repeat
+                        nextPrimitive   = ForceCell{axisIndex}{26};
+                        startPrimitive  = ForceCell{axisIndex}{27}-ForceCell{axisIndex}{26};
+                        repeat_Lbl      = ForceCell{axisIndex}{5}(startPrimitive,behLbl);
+                        ForceCell{axisIndex}{24} = ForceCell{axisIndex}{24}+1;
+                        ForceCell{axisIndex}{23}(ForceCell{axisIndex}{24},:) = rt_MergeLowLevelBehaviors(startPrimitive,ForceCell{axisIndex}{5},llbehLbl,repeat_Lbl,nextPrimitive);
+                    else
+                        ForceCell{axisIndex}{24} = ForceCell{axisIndex}{24}+1;
+                        ForceCell{axisIndex}{23}(ForceCell{axisIndex}{24},:) = ForceCell{axisIndex}{5}(ForceCell{axisIndex}{27},:);
+                    end
+                end
                 
                 
                 
@@ -360,12 +404,12 @@ function  rt_snapVerification(StrategyType,FolderName)
     end
      
 
-    plot(1:localIndex,Wren_loc(:,2));
-    hold on;
-    plot(1:localIndex,Wren_loc(:,3));
-    plot(1:localIndex,Wren_loc(:,4));
-      
-    save('Wren_loc.mat','Wren_loc');
+     plot(1:localIndex,Wren_loc(:,2));
+%     hold on;
+%     plot(1:localIndex,Wren_loc(:,3));
+%     plot(1:localIndex,Wren_loc(:,4));
+%       
+%     save('Wren_loc.mat','Wren_loc');
     
        
        

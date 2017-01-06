@@ -185,7 +185,7 @@ function gradLabel = rt_GradientClassification(gradient,...
         % 1) Scale values by 0.5 if domain is less than 0.1 in total value.
         if(forceAxisIndex>3) % moments
             if(strcmp(StrategyType,'HSA'))
-                factor = 100.0;
+                factor = 50.0;
 
                 pimp  = pimp/factor;     nimp = -1*pimp; % These are a later addition but are indexed as positions 7 and 8
                 bpos  = bpos/factor;     bneg = -1*bpos;
@@ -202,7 +202,7 @@ function gradLabel = rt_GradientClassification(gradient,...
             end
         else    % forces
             if(strcmp(StrategyType,'HSA'))
-                factor = 10.0;
+                factor = 5.0;
 
                 pimp  = pimp/factor;     nimp = -1*pimp; % These are a later addition but are indexed as positions 7 and 8
                 bpos  = bpos/factor;     bneg = -1*bpos;

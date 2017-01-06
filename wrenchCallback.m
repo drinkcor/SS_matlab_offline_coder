@@ -17,9 +17,9 @@ function wrenchCallback(~,message)
 %%
 
 global Wrench;
-global Wrench_new;
 global globalIndex;
-
+   Tr = message.Header.Stamp;
+   Ts = double(Tr.Sec)+double(Tr.Nsec)*10^-9;
    Fx = message.Wrench.Force.X;
    Fy = message.Wrench.Force.Y;
    Fz = message.Wrench.Force.Z;
@@ -28,9 +28,8 @@ global globalIndex;
    Mz = message.Wrench.Torque.Z;  
    
    if((Fx~=0)||(Fy~=0)||(Fz~=0)||(Mx~=0)||(My~=0)||(Mz~=0)) 
-        Wrench_new = [Fx Fy Fz Mx My Mz];
         globalIndex = globalIndex+1;
-        Wrench(globalIndex,:) = [globalIndex Fx Fy Fz Mx My Mz];
+        Wrench(globalIndex,:) = [Ts Fx Fy Fz Mx My Mz];
    end
    
 

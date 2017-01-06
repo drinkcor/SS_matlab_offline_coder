@@ -17,47 +17,53 @@
 %**************************************************************************
 function [boolPerc,biggerOne] = rt_computePercentageThresh(data,dataIndex,strucIndex,AmplitudeRatio)
 
-%% Initialization    
-    
+%% Initialization
+    [r,c]   = size(data);
+    if(c==11)        
+        % mot Comps Structure Indeces
+        ACTN_LBL         = 1;   % action class
+        AVG_MAG_VAL      = 2;   % average value
+        RMS_VAL          = 3;   % rms value, which is max value too
+        AMPLITUDE_VAL    = 4;   % amplitude value
+        
+        % Labels
+        P1LBL = 5; 
+        P2LBL = 6;   % label indeces for both primitives
+        
+        % Time Indeces
+        T1S         = 7; 
+        T1E         = 8;
+        T2S         = 9; 
+        T2E         = 10;
+        TAVG_INDEX  = 11;
+        
+    elseif(c==17)
+        % llbehStruc Indeces
+        behLbl          = 1;   % action class
+        averageVal1     = 2;   % averageVal1
+        averageVal2     = 3;
+        AVG_MAG_VAL     = 4;
+        rmsVal1         = 5;
+        rmsVal2         = 6;
+        AVG_RMS_VAL     = 7;
+        ampVal1         = 8;
+        ampVal2         = 9;
+        AMPLITUDE_VAL   = 10;  % AVG_AMP_VAL
+        mc1             = 11;
+        mc2             = 12;
+        T1S             = 13;
+        T1E             = 14;
+        T2S             = 15;
+        T2E             = 16;
+        TAVG_INDEX      = 17;
+
+    end
+    % Time duration, just for comparing time duration, not actully exist
+    TIME_DURATION = 0;
+        
     % match is next contiguous element
     match = dataIndex + 1;
     
-    % mot Comps Structure Indeces
-    ACTN_LBL         = 1;   % action class
-    AVG_MAG_VAL      = 2;   % average value
-    RMS_VAL          = 3;   % rms value, which is max value too
-    AMPLITUDE_VAL    = 4;   % amplitude value 
-    
-    % Labels
-    P1LBL = 5; P2LBL = 6;   % label indeces for both primitives
-    
-    % Time Indeces
-    T1S = 7; T1E = 8;
-    T2S = 9; T2E = 10;    
-    TAVG_INDEX   = 11;
-    
-    % Time duration, just for comparing time duration, not actully exist
-    TIME_DURATION = 0;
-    
-    % llbehStruc Indeces
-%     behLbl          = 1;   % action class
-%     averageVal1     = 2;   % averageVal1
-%     averageVal2     = 3;
-%     AVG_MAG_VAL     = 4;
-%     rmsVal1         = 5;
-%     rmsVal2         = 6;
-%     AVG_RMS_VAL     = 7;
-%     ampVal1         = 8;
-%     ampVal2         = 9;
-%     AVG_AMP_VAL     = 10;
-%     mc1             = 11;
-%     mc2             = 12;    
-%     T1S             = 13; 
-%     T1E             = 14;
-%     T2S             = 15; 
-%     T2E             = 16;    
-%     TAVG_INDEX      = 17;   
-
     % if strucIndex==0, means we should compare time duration
     if(strucIndex==TIME_DURATION)
         abs_Index = data(dataIndex,T2E) - data(dataIndex,T1S);

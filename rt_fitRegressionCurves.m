@@ -47,7 +47,7 @@
 % real-time: delete some parameters about plotting, pHandle, TL, BL.
 % 2016.7.7
 %**************************************************************************
-function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wStart,marker] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,Type,dataFit_pre,wStart,marker,rate,index)
+function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wStart,marker] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,Type,dataFit_pre,wStart,marker,index)
 
 
 %% Initialize variables
@@ -95,13 +95,13 @@ function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wSta
     
         windowIndex = marker+window_length;
         Range = wStart:windowIndex;
-        Time  = (Range)'; % Wren_loc(Range,1);          % Time indeces that we are working with
+        Time  = Wren_loc(Range,1);          % Time indeces that we are working with
         Data  = Wren_loc(Range,forceIndex); % Corresponding force data for a given force element in a given window
             
-        fprintf(' %f ',Range(1)); fprintf(' %f ',Range(length(Range)));
-        fprintf(' %f ',Wren_loc(Range(1),1)); fprintf(' %f ',Wren_loc(Range(length(Range)),1));
-        fprintf(' %f ',Wren_loc(Range(1),forceIndex)); fprintf(' %f ',Wren_loc(Range(length(Range)),forceIndex));
-        
+%         fprintf(' %f ',Range(1)); fprintf(' %f ',Range(length(Range)));
+%         fprintf(' %f ',Wren_loc(Range(1),1)); fprintf(' %f ',Wren_loc(Range(length(Range)),1));
+%         fprintf(' %f ',Wren_loc(Range(1),forceIndex)); fprintf(' %f ',Wren_loc(Range(length(Range)),forceIndex));
+%         
 %%      % b) Fit data with a linear polynomial. Retrieve coefficients. 
         polyCoeffs  = polyfit(Time,Data,1);            % First-order fit
     
@@ -165,7 +165,7 @@ function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wSta
                    if(~(windowIndex-window_length==1))             % If not the beginning
                         wFinish     = windowIndex-window_length;
                         Range       = wStart:wFinish;               % Save from wStart to the immediately preceeding index that passed the threshold
-                        Time        = (Range)'; %Wren_loc(Range,1);    % Time indeces that we are working with
+                        Time        = Wren_loc(Range,1);    % Time indeces that we are working with
                         Data        = Wren_loc(Range,forceIndex);  % Corresponding force data for a given force element in a given window
                         % if there isn't existing previous good fitting results, use current bad result.
                         if (isnan(dataFit_pre))
@@ -180,13 +180,13 @@ function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wSta
                     else
                         wFinish     = windowIndex;
                         Range       = wStart:wFinish;               % Save from wStart to the immediately preceeding index that passed the threshold
-                        Time        = (Range)'; % Wren_loc(Range,1);   % Time indeces that we are working with
+                        Time        = Wren_loc(Range,1);   % Time indeces that we are working with
                         Data        = Wren_loc(Range,forceIndex);  % Corresponding force data for a given force element in a given windowdataFit     = dataFit(Range);               % Corresponding force data for a given force element in a given window                    
                         dataFit     = dataFit(Range);               % Corresponding force data for a given force element in a given window
                         dataFit_pre = nan;
                     end
 %%                  ii) Retrieve the segment's statistical Data and write to file
-                    [dAvg dMax dMin dStart dFinish dGradient dLabel]=rt_statisticalData(Time(1)*(1/rate),   Time(length(Range))*(1/rate),...
+                    [dAvg dMax dMin dStart dFinish dGradient dLabel]=rt_statisticalData(Time(1),   Time(length(Range)),...
                                                                                      dataFit,      polyCoeffs,...
                                                                                      FolderName,StrategyType,index); % 1+windowlength
                     
