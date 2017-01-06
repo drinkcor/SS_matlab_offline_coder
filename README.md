@@ -8,12 +8,12 @@ To use online RCBHT, there are several steps listed below,
 
 2. Open parpool in MATLAB command window.
       % Delete any possible existing pools running previously
-      >> delete(gcp);
-      >> parpool(2);
+      delete(gcp);
+      parpool(2);
   Then, wait for the parpool start. If the prompt, which is ">>"， available again, that means the parpool is ready to work. Now we can move on to the next step.
 
 3. Run RCBHT in MATLAB command window.
-      >> rt_snapVerification('HSA','any_path_here_is_ok');
+      rt_snapVerification('HSA','any_path_here_is_ok');
    "HSA" means a kind of strategy, the second parameter is a path, some files containing predefined theshold are placed here. If there aren't any predefined threshold files, you can text any string to fill this parameter. 
    After you see message like: “The value of the ROS_MASTER_URI environment variable, http://localhost:11311, will be used to connect to the ROS master.Initializing global node /matlab_global_node_88464 with NodeURI http://localhost:60491/” It mean that the RCBHT is ready to work. Move on to the next step.
    
