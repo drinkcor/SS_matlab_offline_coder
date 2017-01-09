@@ -15,7 +15,7 @@ function  rt_snapVerification(StrategyType,FolderName)
 %   Detailed explanation goes here
 
     %%  Gradient Classification Structure 
-
+    
     % Create string array:
     gradLabels = [ 'bpos';   ... % big   pos grads
                    'mpos';   ... % med   pos grads
@@ -90,7 +90,28 @@ function  rt_snapVerification(StrategyType,FolderName)
     rosshutdown;
     rosinit;
     
-    pub = rospublisher('/robot/limb/right/endpoint_state', 'baxter_core_msgs/EndpointState');
+    wrenchPub = rospublisher('/robot/limb/right/endpoint_state', 'baxter_core_msgs/EndpointState');   
+%     segmentPub{1} = rospublisher('/topic_segments_fx', 'publish_files/Segments');   
+%     segmentPub{2} = rospublisher('/topic_segments_fy', 'publish_files/Segments');  
+%     segmentPub{3} = rospublisher('/topic_segments_fz', 'publish_files/Segments');  
+%     segmentPub{4} = rospublisher('/topic_segments_mx', 'publish_files/Segments');  
+%     segmentPub{5} = rospublisher('/topic_segments_my', 'publish_files/Segments');  
+%     segmentPub{6} = rospublisher('/topic_segments_mz', 'publish_files/Segments');  
+% 
+%     
+%     compositePub{1} = rospublisher('/topic_composites_fx', 'publish_files/Composites');
+%     compositePub{2} = rospublisher('/topic_composites_fy', 'publish_files/Composites');
+%     compositePub{3} = rospublisher('/topic_composites_fz', 'publish_files/Composites');
+%     compositePub{4} = rospublisher('/topic_composites_mx', 'publish_files/Composites');
+%     compositePub{5} = rospublisher('/topic_composites_my', 'publish_files/Composites');
+%     compositePub{6} = rospublisher('/topic_composites_mz', 'publish_files/Composites');
+%     
+%     llbehaviorPub{1} = rospublisher('/topic_llbehaviors_fx', 'publish_files/llBehaviors');
+%     llbehaviorPub{2} = rospublisher('/topic_llbehaviors_fy', 'publish_files/llBehaviors');
+%     llbehaviorPub{3} = rospublisher('/topic_llbehaviors_fz', 'publish_files/llBehaviors');
+%     llbehaviorPub{4} = rospublisher('/topic_llbehaviors_mx', 'publish_files/llBehaviors');
+%     llbehaviorPub{5} = rospublisher('/topic_llbehaviors_my', 'publish_files/llBehaviors');
+%     llbehaviorPub{6} = rospublisher('/topic_llbehaviors_mz', 'publish_files/llBehaviors');
     
     wrenchHandle  = rossubscriber('/robot/limb/right/endpoint_state',@wrenchCallback, 'BufferSize', 1000);
     % wrench_node_sub = robotics.ros.Node('/wrench_node_subscriber');
@@ -102,6 +123,12 @@ function  rt_snapVerification(StrategyType,FolderName)
 %     parpool(2);
     
     for axisIndex = 1:6
+        
+%         segmentMsg{axisIndex} = rosmessage('publish_files/Segments');
+%         compositeMsg{axisIndex} = rosmessage('publish_files/Composites');
+%         llbehaviorMsg{axisIndex} = rosmessage('publish_files/llBehaviors');
+        
+        
         % Variables for Primitive layer
         ForceCell{axisIndex}{1} = zeros(100,7);     % primitive layer data
         ForceCell{axisIndex}{2} = 0;                % primitive layer index
@@ -151,7 +178,7 @@ function  rt_snapVerification(StrategyType,FolderName)
            % Wait for input
             pause(0.05);
         end
-        
+        tstart = tic;
         while (localIndex<globalIndex)
             % Increase Counter for local index
             localIndex=localIndex+1;
@@ -185,10 +212,22 @@ function  rt_snapVerification(StrategyType,FolderName)
                 if (ForceCell{axisIndex}{14}+1 <= ForceCell{axisIndex}{2})
                     [hasNew_pc,data_new, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14}] = rt_primitivesCleanUp(ForceCell{axisIndex}{1}, ForceCell{axisIndex}{12}, ForceCell{axisIndex}{13}, ForceCell{axisIndex}{14});
                     if (hasNew_pc)
+                        
                         % Increase counter
                         ForceCell{axisIndex}{11} = ForceCell{axisIndex}{11}+1;
                         % Keep history of primitive layer clean up data 
                         ForceCell{axisIndex}{10}(ForceCell{axisIndex}{11},:) = data_new;
+                        
+                        % Publish the new item to post processing
+%                         segmentMsg{axisIndex}.Average   = data_new(1);
+%                         segmentMsg{axisIndex}.MaxVal    = data_new(2);
+%                         segmentMsg{axisIndex}.MinVal    = data_new(3);
+%                         segmentMsg{axisIndex}.TStart    = data_new(4);
+%                         segmentMsg{axisIndex}.TEnd      = data_new(5);
+%                         segmentMsg{axisIndex}.Gradient  = data_new(6);
+%                         segmentMsg{axisIndex}.GradLabel = gradInt2gradLbl(data_new(7));
+%                         fprintf('Prepare to publish');
+%                         send(segmentPub{axisIndex},segmentMsg{axisIndex});
                     end
                      
                 end
@@ -211,10 +250,25 @@ function  rt_snapVerification(StrategyType,FolderName)
                  if (ForceCell{axisIndex}{21}+1 <= ForceCell{axisIndex}{4})
                     [hasNew_cmc, data_new, ForceCell{axisIndex}{18}, ForceCell{axisIndex}{19}, ForceCell{axisIndex}{20}, ForceCell{axisIndex}{21}] = rt_MotCompsCleanUp(ForceCell{axisIndex}{3},  ForceCell{axisIndex}{18}, ForceCell{axisIndex}{19}, ForceCell{axisIndex}{20}, ForceCell{axisIndex}{21});
                     if (hasNew_cmc)
+                        
                         % Increase counter
                         ForceCell{axisIndex}{17} = ForceCell{axisIndex}{17}+1;
                         % Keep history of MC layer clean up data
                         ForceCell{axisIndex}{16}(ForceCell{axisIndex}{17},:) = data_new;
+                        
+                        % Publish the new item to post processing
+%                         compositeMsg{axisIndex}.McLabel     = rt_actionInt2actionLbl(data_new(1));
+%                         compositeMsg{axisIndex}.AverageVal  = data_new(2);
+%                         compositeMsg{axisIndex}.RmsVal      = data_new(3);
+%                         compositeMsg{axisIndex}.AmpVal      = data_new(4);
+%                         compositeMsg{axisIndex}.GradLabel1  = gradInt2gradLbl(data_new(5));
+%                         compositeMsg{axisIndex}.GradLabel2  = gradInt2gradLbl(data_new(6));
+%                         compositeMsg{axisIndex}.T1Start     = data_new(7);
+%                         compositeMsg{axisIndex}.T1End       = data_new(8);
+%                         compositeMsg{axisIndex}.T2Start     = data_new(9);
+%                         compositeMsg{axisIndex}.T2End       = data_new(10);
+%                         compositeMsg{axisIndex}.TAverage    = data_new(11);
+%                         send(compositePub{axisIndex},compositeMsg{axisIndex});
                     end
                  end
                  
@@ -237,10 +291,32 @@ function  rt_snapVerification(StrategyType,FolderName)
                  if (ForceCell{axisIndex}{27}+1 <= ForceCell{axisIndex}{6})
                     [hasNew_llbc, data_new, ForceCell{axisIndex}{25}, ForceCell{axisIndex}{26}, ForceCell{axisIndex}{27}] = rt_llbehCompositionCleanUp(ForceCell{axisIndex}{5},  ForceCell{axisIndex}{25}, ForceCell{axisIndex}{26}, ForceCell{axisIndex}{27});
                     if (hasNew_llbc)
+                        
                         % Increase counter
                         ForceCell{axisIndex}{24} = ForceCell{axisIndex}{24}+1;
                         % Keep history of MC layer clean up data
                         ForceCell{axisIndex}{23}(ForceCell{axisIndex}{24},:) = data_new;
+                        
+                        % Publish the new item to post processing
+%                         llbehaviorMsg{axisIndex}.LlbLabel        = llbLabel(data_new(1));
+%                         llbehaviorMsg{axisIndex}.AverageVal1     = data_new(2);
+%                         llbehaviorMsg{axisIndex}.AverageVal2     = data_new(3);
+%                         llbehaviorMsg{axisIndex}.AvgMagVal       = data_new(4);
+%                         llbehaviorMsg{axisIndex}.RmsVal1         = data_new(5);
+%                         llbehaviorMsg{axisIndex}.RmsVal2         = data_new(6);
+%                         llbehaviorMsg{axisIndex}.AvgRmsVal       = data_new(7);
+%                         llbehaviorMsg{axisIndex}.AmplitudeVal1   = data_new(8);
+%                         llbehaviorMsg{axisIndex}.AmplitudeVal2   = data_new(9);
+%                         llbehaviorMsg{axisIndex}.AvgAmpVal       = data_new(10);
+%                         llbehaviorMsg{axisIndex}.McLabel1        = llbLabel(data_new(11));
+%                         llbehaviorMsg{axisIndex}.McLabel2        = llbLabel(data_new(12));
+%                         llbehaviorMsg{axisIndex}.T1Start         = data_new(13);
+%                         llbehaviorMsg{axisIndex}.T1End           = data_new(14);
+%                         llbehaviorMsg{axisIndex}.T2Start         = data_new(15);
+%                         llbehaviorMsg{axisIndex}.T2End           = data_new(16);
+%                         llbehaviorMsg{axisIndex}.TAverage        = data_new(17);
+%                         
+%                         send(llbehaviorPub{axisIndex},llbehaviorMsg{axisIndex});
                     end
                  end
                 
@@ -402,8 +478,9 @@ function  rt_snapVerification(StrategyType,FolderName)
             break;
         end
     end
+    
+     aaaatime = toc(tstart);
      
-
      plot(1:localIndex,Wren_loc(:,2));
 %     hold on;
 %     plot(1:localIndex,Wren_loc(:,3));
