@@ -1,0 +1,17 @@
+string llb_label
+float64 average_val1
+float64 average_val2
+float64 avg_mag_val
+float64 rms_val1
+float64 rms_val2
+float64 avg_rms_val
+float64 amplitude_val1
+float64 amplitude_val2
+float64 avg_amp_val
+string mc_label1
+string mc_label2
+float64 t1_start
+float64 t1_end
+float64 t2_start
+float64 t2_end
+float64 t_average
