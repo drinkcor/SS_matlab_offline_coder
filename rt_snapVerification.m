@@ -162,6 +162,10 @@ function  rt_snapVerification(StrategyType,FolderName)
         compositeMsg{axisIndex} = rosmessage('publish_files/Composites');
         llbehaviorMsg{axisIndex} = rosmessage('publish_files/llBehaviors');
         
+        % Variables to keep track of sending label
+        segmentCur{axisIndex} = 0;
+        compositeCur{axisIndex} = 0;
+        llbehCur{axisIndex} = 0;
         
         % Variables for Primitive layer
         ForceCell{axisIndex}{1} = zeros(100,7);     % primitive layer data
@@ -176,6 +180,7 @@ function  rt_snapVerification(StrategyType,FolderName)
         ForceCell{axisIndex}{12} = 0;               % lookForRepeat, 0 means not looking for repeat, 1 means looking for repeat
         ForceCell{axisIndex}{13} = 0;               % numberRepeated
         ForceCell{axisIndex}{14} = 1;               % marker_pc
+        
         
         % Variables for CompoundMotionComposition layer
         ForceCell{axisIndex}{3}  = zeros(100,11);   % CompoundMotionComposition layer data
@@ -230,12 +235,73 @@ function  rt_snapVerification(StrategyType,FolderName)
             end
             %Wren_loc_new = Wrench_new;
             
+            
+            for axisIndex = 1:6
+                
+                while(segmentCur{axisIndex} < ForceCell{axisIndex}{11}||compositeCur{axisIndex} < ForceCell{axisIndex}{17}||llbehCur{axisIndex} < ForceCell{axisIndex}{24})
+                
+                    if(segmentCur{axisIndex} < ForceCell{axisIndex}{11})
+                        segmentCur{axisIndex}=segmentCur{axisIndex}+1;
+                        data_new = ForceCell{axisIndex}{10}(segmentCur{axisIndex},:);
+                        segmentMsg{axisIndex}.Average   = data_new(1);
+                        segmentMsg{axisIndex}.MaxVal    = data_new(2);
+                        segmentMsg{axisIndex}.MinVal    = data_new(3);
+                        segmentMsg{axisIndex}.TStart    = data_new(4);
+                        segmentMsg{axisIndex}.TEnd      = data_new(5);
+                        segmentMsg{axisIndex}.Gradient  = data_new(6);
+                        segmentMsg{axisIndex}.GradLabel = gradInt2gradLbl(data_new(7));
+                        send(segmentPub{axisIndex},segmentMsg{axisIndex});
+                    end
+                    
+                    if(compositeCur{axisIndex} < ForceCell{axisIndex}{17})
+                        compositeCur{axisIndex} = compositeCur{axisIndex}+1;
+                        data_new = ForceCell{axisIndex}{16}(compositeCur{axisIndex},:);
+                        compositeMsg{axisIndex}.McLabel     = rt_actionInt2actionLbl(data_new(1));
+                        compositeMsg{axisIndex}.AverageVal  = data_new(2);
+                        compositeMsg{axisIndex}.RmsVal      = data_new(3);
+                        compositeMsg{axisIndex}.AmpVal      = data_new(4);
+                        compositeMsg{axisIndex}.GradLabel1  = gradInt2gradLbl(data_new(5));
+                        compositeMsg{axisIndex}.GradLabel2  = gradInt2gradLbl(data_new(6));
+                        compositeMsg{axisIndex}.T1Start     = data_new(7);
+                        compositeMsg{axisIndex}.T1End       = data_new(8);
+                        compositeMsg{axisIndex}.T2Start     = data_new(9);
+                        compositeMsg{axisIndex}.T2End       = data_new(10);
+                        compositeMsg{axisIndex}.TAverage    = data_new(11);
+                        send(compositePub{axisIndex},compositeMsg{axisIndex});
+                        
+                    end
+                    
+                    if(llbehCur{axisIndex} < ForceCell{axisIndex}{24})
+                        llbehCur{axisIndex} = llbehCur{axisIndex}+1;
+                        data_new = ForceCell{axisIndex}{23}(llbehCur{axisIndex},:);
+                        llbehaviorMsg{axisIndex}.LlbLabel        = llbInt2llbLbl(data_new(1));
+                        llbehaviorMsg{axisIndex}.AverageVal1     = data_new(2);
+                        llbehaviorMsg{axisIndex}.AverageVal2     = data_new(3);
+                        llbehaviorMsg{axisIndex}.AvgMagVal       = data_new(4);
+                        llbehaviorMsg{axisIndex}.RmsVal1         = data_new(5);
+                        llbehaviorMsg{axisIndex}.RmsVal2         = data_new(6);
+                        llbehaviorMsg{axisIndex}.AvgRmsVal       = data_new(7);
+                        llbehaviorMsg{axisIndex}.AmplitudeVal1   = data_new(8);
+                        llbehaviorMsg{axisIndex}.AmplitudeVal2   = data_new(9);
+                        llbehaviorMsg{axisIndex}.AvgAmpVal       = data_new(10);
+                        llbehaviorMsg{axisIndex}.McLabel1        = rt_actionInt2actionLbl(data_new(11));
+                        llbehaviorMsg{axisIndex}.McLabel2        = rt_actionInt2actionLbl(data_new(12));
+                        llbehaviorMsg{axisIndex}.T1Start         = data_new(13);
+                        llbehaviorMsg{axisIndex}.T1End           = data_new(14);
+                        llbehaviorMsg{axisIndex}.T2Start         = data_new(15);
+                        llbehaviorMsg{axisIndex}.T2End           = data_new(16);
+                        llbehaviorMsg{axisIndex}.TAverage        = data_new(17);
+                        send(llbehaviorPub{axisIndex},llbehaviorMsg{axisIndex});
+                        
+                    end
+                end
+            end
 %             fprintf('\tGlobalIndex: %8f\tLocalIndex: %8f\n',globalIndex,localIndex);
             % fprintf('\tTimeStamp: %8f\tTimeStamp.toSec: %8f\n',Wren_loc(localIndex,1),Wren_loc(localIndex,1).toSec());
-            % fprintf('\tTimeStamp: %8f\n',Wren_loc(localIndex,1));
+            % fprintf('\tTimeStamp: %8f\n',Wren_loc(localIndex,1));rt
          
             %   parfor axisIndex = 1:6
-            for axisIndex = 1:6
+            parfor axisIndex = 1:6
                 
                 pType  = plotType(axisIndex,:);  
                 %% Primitive_layer
@@ -265,14 +331,14 @@ function  rt_snapVerification(StrategyType,FolderName)
                         
                         % Publish the new item to post processing
                 %        fprintf('Reach here segment\n');
-                        segmentMsg{axisIndex}.Average   = data_new(1);
-                        segmentMsg{axisIndex}.MaxVal    = data_new(2);
-                        segmentMsg{axisIndex}.MinVal    = data_new(3);
-                        segmentMsg{axisIndex}.TStart    = data_new(4);
-                        segmentMsg{axisIndex}.TEnd      = data_new(5);
-                        segmentMsg{axisIndex}.Gradient  = data_new(6);
-                        segmentMsg{axisIndex}.GradLabel = gradInt2gradLbl(data_new(7));
-                        send(segmentPub{axisIndex},segmentMsg{axisIndex});
+%                         segmentMsg{axisIndex}.Average   = data_new(1);
+%                         segmentMsg{axisIndex}.MaxVal    = data_new(2);
+%                         segmentMsg{axisIndex}.MinVal    = data_new(3);
+%                         segmentMsg{axisIndex}.TStart    = data_new(4);
+%                         segmentMsg{axisIndex}.TEnd      = data_new(5);
+%                         segmentMsg{axisIndex}.Gradient  = data_new(6);
+%                         segmentMsg{axisIndex}.GradLabel = gradInt2gradLbl(data_new(7));
+%                         send(segmentPub{axisIndex},segmentMsg{axisIndex});
 %                         send(segmentPubConstant{axisIndex}.Value,segmentMsg{axisIndex});
                     end
                      
@@ -303,18 +369,18 @@ function  rt_snapVerification(StrategyType,FolderName)
                         ForceCell{axisIndex}{16}(ForceCell{axisIndex}{17},:) = data_new;
                         
                         % Publish the new item to post processing
-                        compositeMsg{axisIndex}.McLabel     = rt_actionInt2actionLbl(data_new(1));
-                        compositeMsg{axisIndex}.AverageVal  = data_new(2);
-                        compositeMsg{axisIndex}.RmsVal      = data_new(3);
-                        compositeMsg{axisIndex}.AmpVal      = data_new(4);
-                        compositeMsg{axisIndex}.GradLabel1  = gradInt2gradLbl(data_new(5));
-                        compositeMsg{axisIndex}.GradLabel2  = gradInt2gradLbl(data_new(6));
-                        compositeMsg{axisIndex}.T1Start     = data_new(7);
-                        compositeMsg{axisIndex}.T1End       = data_new(8);
-                        compositeMsg{axisIndex}.T2Start     = data_new(9);
-                        compositeMsg{axisIndex}.T2End       = data_new(10);
-                        compositeMsg{axisIndex}.TAverage    = data_new(11);
-                        send(compositePub{axisIndex},compositeMsg{axisIndex});
+%                         compositeMsg{axisIndex}.McLabel     = rt_actionInt2actionLbl(data_new(1));
+%                         compositeMsg{axisIndex}.AverageVal  = data_new(2);
+%                         compositeMsg{axisIndex}.RmsVal      = data_new(3);
+%                         compositeMsg{axisIndex}.AmpVal      = data_new(4);
+%                         compositeMsg{axisIndex}.GradLabel1  = gradInt2gradLbl(data_new(5));
+%                         compositeMsg{axisIndex}.GradLabel2  = gradInt2gradLbl(data_new(6));
+%                         compositeMsg{axisIndex}.T1Start     = data_new(7);
+%                         compositeMsg{axisIndex}.T1End       = data_new(8);
+%                         compositeMsg{axisIndex}.T2Start     = data_new(9);
+%                         compositeMsg{axisIndex}.T2End       = data_new(10);
+%                         compositeMsg{axisIndex}.TAverage    = data_new(11);
+%                         send(compositePub{axisIndex},compositeMsg{axisIndex});
 %                         send(compositePubConstant{axisIndex}.Value,compositeMsg{axisIndex});
                     end
                  end
@@ -345,24 +411,24 @@ function  rt_snapVerification(StrategyType,FolderName)
                         ForceCell{axisIndex}{23}(ForceCell{axisIndex}{24},:) = data_new;
                         
                         % Publish the new item to post processing
-                        llbehaviorMsg{axisIndex}.LlbLabel        = llbInt2llbLbl(data_new(1));
-                        llbehaviorMsg{axisIndex}.AverageVal1     = data_new(2);
-                        llbehaviorMsg{axisIndex}.AverageVal2     = data_new(3);
-                        llbehaviorMsg{axisIndex}.AvgMagVal       = data_new(4);
-                        llbehaviorMsg{axisIndex}.RmsVal1         = data_new(5);
-                        llbehaviorMsg{axisIndex}.RmsVal2         = data_new(6);
-                        llbehaviorMsg{axisIndex}.AvgRmsVal       = data_new(7);
-                        llbehaviorMsg{axisIndex}.AmplitudeVal1   = data_new(8);
-                        llbehaviorMsg{axisIndex}.AmplitudeVal2   = data_new(9);
-                        llbehaviorMsg{axisIndex}.AvgAmpVal       = data_new(10);
-                        llbehaviorMsg{axisIndex}.McLabel1        = rt_actionInt2actionLbl(data_new(11));
-                        llbehaviorMsg{axisIndex}.McLabel2        = rt_actionInt2actionLbl(data_new(12));
-                        llbehaviorMsg{axisIndex}.T1Start         = data_new(13);
-                        llbehaviorMsg{axisIndex}.T1End           = data_new(14);
-                        llbehaviorMsg{axisIndex}.T2Start         = data_new(15);
-                        llbehaviorMsg{axisIndex}.T2End           = data_new(16);
-                        llbehaviorMsg{axisIndex}.TAverage        = data_new(17);
-                        send(llbehaviorPub{axisIndex},llbehaviorMsg{axisIndex});
+%                         llbehaviorMsg{axisIndex}.LlbLabel        = llbInt2llbLbl(data_new(1));
+%                         llbehaviorMsg{axisIndex}.AverageVal1     = data_new(2);
+%                         llbehaviorMsg{axisIndex}.AverageVal2     = data_new(3);
+%                         llbehaviorMsg{axisIndex}.AvgMagVal       = data_new(4);
+%                         llbehaviorMsg{axisIndex}.RmsVal1         = data_new(5);
+%                         llbehaviorMsg{axisIndex}.RmsVal2         = data_new(6);
+%                         llbehaviorMsg{axisIndex}.AvgRmsVal       = data_new(7);
+%                         llbehaviorMsg{axisIndex}.AmplitudeVal1   = data_new(8);
+%                         llbehaviorMsg{axisIndex}.AmplitudeVal2   = data_new(9);
+%                         llbehaviorMsg{axisIndex}.AvgAmpVal       = data_new(10);
+%                         llbehaviorMsg{axisIndex}.McLabel1        = rt_actionInt2actionLbl(data_new(11));
+%                         llbehaviorMsg{axisIndex}.McLabel2        = rt_actionInt2actionLbl(data_new(12));
+%                         llbehaviorMsg{axisIndex}.T1Start         = data_new(13);
+%                         llbehaviorMsg{axisIndex}.T1End           = data_new(14);
+%                         llbehaviorMsg{axisIndex}.T2Start         = data_new(15);
+%                         llbehaviorMsg{axisIndex}.T2End           = data_new(16);
+%                         llbehaviorMsg{axisIndex}.TAverage        = data_new(17);
+%                         send(llbehaviorPub{axisIndex},llbehaviorMsg{axisIndex});
 %                         send(llbehaviorPubConstant{axisIndex}.Value,llbehaviorMsg{axisIndex});
                     end
                  end
@@ -374,7 +440,7 @@ function  rt_snapVerification(StrategyType,FolderName)
         drawnow;
         if(localIndex==globalIndex)
         %% Last iteration to wrap up            
-            for axisIndex = 1:6
+            parfor axisIndex = 1:6
                 
                 
                 %% Last iteration of primitive layer  
@@ -530,7 +596,7 @@ function  rt_snapVerification(StrategyType,FolderName)
      fprintf('Time consuming: %f\n',aaaatime);
 %      fprintf('Last time: %f',sub.LatestMessage.T2End);
      fprintf('Amount of global items: %d\n',globalIndex);
-    fprintf('Amount of global items: %d\n',localIndex);
+    fprintf('Amount of local items: %d\n',localIndex);
     
 %      plot(1:localIndex,Wren_loc(:,2));
 %     hold on;
