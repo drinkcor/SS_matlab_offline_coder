@@ -2,6 +2,15 @@
 online RCBHT (real time RCBHT)
 =======================
 
+Overview:
+
+The online RCBHT enables semantic encoding of low-level real time wrench data. It takes real time ROS message (includeing 
+wrench data) as input, do semantic encoding, and finally publishs stream of semantic labels using ROS message. The taxonomy 
+is built on the premise that low-level relative-change patterns can be classified through a small set of categoric labels 
+in an increasingly abstract manner. The RCBHT is a multi-layer behavior aggregating scheme. It is composed of three 
+bottom-to-top increasingly abstract layers. Starting from the bottom layer and going up we have the Primitive layer, the 
+Motion Composition (MC) layer, and the Low-Level Behavior layer (LLB).
+
 
 Prerequisite：
 
