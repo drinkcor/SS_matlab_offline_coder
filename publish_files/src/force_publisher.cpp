@@ -49,7 +49,7 @@ int main(int argc, char **argv)
   // ROS Rates
   ros::Rate loopRate(200); 	       		// Create a ros::Rate object. Set the time for a 1Hz sleeper timer.
   int i = 0;
-  while(ros::ok()&&i<=index) 				// do work here in infinite loop (desired for this example), but terminate if detect ROS has faulted
+  while(ros::ok()&&i<index) 				// do work here in infinite loop (desired for this example), but terminate if detect ROS has faulted
     {
       // this loop has no sleep timer, and thus it will consume excessive CPU time
       // expect one core to be 100% dedicated (wastefully) to this small task

@@ -67,6 +67,6 @@ int main(int argc, char **argv)
       loopRate.sleep();				// The call to sleep makes this node's while loop to be called every 1Hz.
     }
 
-
+  return 0;
   
 }

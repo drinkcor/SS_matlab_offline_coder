@@ -131,6 +131,7 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(force_publisher src/force_publisher.cpp)
+add_executable(llbehLbl_listener src/llbehLbl_listener.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -139,6 +140,9 @@ add_executable(force_publisher src/force_publisher.cpp)
 ## Specify libraries to link a library or executable target against
 
 target_link_libraries(force_publisher
+   ${catkin_LIBRARIES}
+)
+target_link_libraries(llbehLbl_listener
    ${catkin_LIBRARIES}
 )
 # target_link_libraries(publish_files_node
