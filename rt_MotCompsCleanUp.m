@@ -73,7 +73,7 @@ function [hasNew_cmc, data_new, lookForRepeat, numRepeat, maxAmplitude, marker_c
     MAG_WINDOW_AD_ID = 0.50; 
     
     % Threshold used for combs of increase/constant/decrease
-    AMP_WINDOW_IKD = 0.9;
+    AMP_WINDOW_IKD = 1.50;
     MAG_WINDOW_IKD = 1.00; 
     
     % Threshold used for combs of absolutely dominate
@@ -313,30 +313,23 @@ function [hasNew_cmc, data_new, lookForRepeat, numRepeat, maxAmplitude, marker_c
                     ~intcmp(motComps(i,ACTN_LBL),actionLbl(neg_contact)) && ~intcmp(motComps(match,ACTN_LBL),actionLbl(neg_contact)) &&...
                     ~intcmp(motComps(i,ACTN_LBL),actionLbl(contact)) && ~intcmp(motComps(match,ACTN_LBL),actionLbl(contact)) )
                 
-                [perc1,biggerOne_amp] = rt_computePercentageThresh(motComps,i,AMPLITUDE_VAL,AMP_WINDOW_DOM);
-                % If their amplitude isn't similar
-                if(~perc1)
-                    [perc2,biggerOne_mag] = rt_computePercentageThresh(motComps,i,AVG_MAG_VAL,MAG_WINDOW_DOM);
-                    % If their average value isn't similar
+                perc1 = rt_computePercentageThresh(motComps,i,AMPLITUDE_VAL,AMP_WINDOW_DOM);
+                % If their amplitude is similar
+                if(perc1)
+                    [perc2,biggerOne_time] = rt_computePercentageThresh(motComps,i,TIME_DURATION,TIME_WINDOW_DOM);
+                    % If their time duration isn't similar
                     if(~perc2)
-                        [perc3,biggerOne_time] = rt_computePercentageThresh(motComps,i,TIME_DURATION,TIME_WINDOW_DOM);
-                        % If their time duration isn't similar
-                        if(~perc3)
-                            % If one MC is absolutely dominating
-                            if((biggerOne_amp==biggerOne_mag)&&(biggerOne_mag==biggerOne_time))
-                                if(biggerOne_amp==-1)
-                                    action_Lbl = motComps(i,ACTN_LBL);
-                                elseif (biggerOne_amp==1)
-                                    action_Lbl = motComps(match,ACTN_LBL);
-                                end
-                                data_new    = rt_MergeCompositions(i,motComps,actionLbl,action_Lbl,1);
-                                hasNew_cmc  = 1;
-                                marker_cmc  = marker_cmc+2;
-                                
-                                keepCheck   = false;
-                                
-                            end
-                        end                       
+                        if(biggerOne_time==-1)
+                            action_Lbl = motComps(i,ACTN_LBL);
+                        elseif (biggerOne_time==1)
+                            action_Lbl = motComps(match,ACTN_LBL);
+                        end
+                        data_new    = rt_MergeCompositions(i,motComps,actionLbl,action_Lbl,1);
+                        hasNew_cmc  = 1;
+                        marker_cmc  = marker_cmc+2;
+                        
+                        keepCheck   = false;
+                        
                     end
                 end
             end

@@ -181,7 +181,7 @@ function [hasNew_llbc,data_new,lookForRepeat,numRepeat,marker_llbc] = rt_llbehCo
             % Compute ratio of 2nd primitive vs 1st primitive
             ampRatio = amp1/amp2;
             
-            if ( ampRatio >= lengthRatio && ampRatio~=inf  )
+            if ( ampRatio <= lengthRatio && ampRatio >= inv(lengthRatio) && ampRatio~=inf  && ampRatio~=0 )
                 % (2) Get Duration of primitives inside compositions
                 p1time = llbehStruc(index,T2E)-llbehStruc(index,T1S);   % Get duration of first primitive
                 p2time = llbehStruc(match,T2E)-llbehStruc(match,T1S);   % Get duration of second primitive
@@ -196,27 +196,17 @@ function [hasNew_llbc,data_new,lookForRepeat,numRepeat,marker_llbc] = rt_llbehCo
                     marker_llbc = marker_llbc+2;
                     hasNew_llbc = 1;
                     keepCheck   = false;
-                else
-                    % Don't do any thing, go ahead matching
-                end
-            elseif ( ampRatio <= inv(lengthRatio) && ampRatio~=0  )
-                % (2) Get Duration of primitives inside compositions
-                p1time = llbehStruc(index,T2E)-llbehStruc(index,T1S);   % Get duration of first primitive
-                p2time = llbehStruc(match,T2E)-llbehStruc(match,T1S);   % Get duration of second primitive
-                
-                ratio = p1time/p2time;
-                
-                % Merge according to the ratio
-                if(ratio~=0 && ratio~=inf && ratio < inv(lengthRatio))
+                    
+                elseif(ratio~=0 && ratio~=inf && ratio < inv(lengthRatio))
                     MATCH_FLAG  = 1;            % Second primitive is longer
                     LLBEH_LBL   = llbehStruc(match,behLbl);
                     data_new    = rt_MergeLowLevelBehaviors(index,llbehStruc,llbehLbl,LLBEH_LBL,MATCH_FLAG);
                     marker_llbc = marker_llbc+2;
                     hasNew_llbc = 1;
-                    keepCheck   = false;
+                    keepCheck   = false;               
                 else
                     % Don't do any thing, go ahead matching
-                end
+                end 
             else
                 % Don't do any thing, go ahead matching
             end    

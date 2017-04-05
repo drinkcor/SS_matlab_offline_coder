@@ -146,7 +146,7 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
             % Compute ratio of 2nd primitive vs 1st primitive
             ampRatio = amp1/amp2;
                          
-            if ( ampRatio >= amplitudeRatio && ampRatio~=inf  )                
+            if ( ampRatio >= inv(amplitudeRatio) && ampRatio <= amplitudeRatio && ampRatio~=inf  )                
                 % (2) Get Duration of primitives inside compositions
                 p1time = statData(i,T1E)-statData(i,T1S);       % Get duration of first primitive
                 p2time = statData(i+1,T1E)-statData(i+1,T1S);   % Get duration of second primitive    
@@ -159,20 +159,7 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
                     data_new  = rt_MergePrimitives(i,statData,thisPrim);
                     marker_pc = marker_pc+2;
                     hasnew_pc = 1;
-                else
-                    data_new  = statData(i,:);
-                    marker_pc = marker_pc+1;
-                    hasnew_pc = 1;
-                end 
-            elseif ( ampRatio <= inv(amplitudeRatio) && ampRatio~=0  )
-                % (2) Get Duration of primitives inside compositions
-                p1time = statData(i,T1E)-statData(i,T1S);       % Get duration of first primitive
-                p2time = statData(i+1,T1E)-statData(i+1,T1S);   % Get duration of second primitive    
-                
-                ratio = p1time/p2time;
-                
-                % Merge according to the ratio 
-                if(ratio~=0 && ratio~=inf && ratio < inv(lengthRatio))
+                elseif(ratio~=0 && ratio~=inf && ratio < inv(lengthRatio))
                     nextPrim = 1;            % Second primitive is longer
                     data_new  = rt_MergePrimitives(i,statData,nextPrim);
                     marker_pc = marker_pc+2;
@@ -181,7 +168,7 @@ function [hasnew_pc,data_new,lookForRepeat,numberRepeated,marker_pc] = rt_primit
                     data_new  = statData(i,:);
                     marker_pc = marker_pc+1;
                     hasnew_pc = 1;
-                end     
+                end 
             else
                 data_new  = statData(i,:);
                 marker_pc = marker_pc+1;
