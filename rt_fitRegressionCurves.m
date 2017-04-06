@@ -47,7 +47,7 @@
 % real-time: delete some parameters about plotting, pHandle, TL, BL.
 % 2016.7.7
 %**************************************************************************
-function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wStart,marker] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,Type,dataFit_pre,wStart,marker,index)
+function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,wStart,marker] = rt_fitRegressionCurves(Wren_loc,StrategyType,FolderName,Type,wStart,marker,index)
 
 
 %% Initialize variables
@@ -154,7 +154,6 @@ function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wSta
           % ei) If good correlation, keep growing window
           if(coeffThshld > GoodFitThreshold)
                 marker      = marker+ window_length;
-                dataFit_pre = dataFit;
                 
                 hasNew      = false;
                 dAvg=0;     dMax=0;     dMin=0;     dStart=0;   dFinish=0;  dGradient=0;    dLabel=0;
@@ -167,15 +166,17 @@ function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wSta
                         Range       = wStart:wFinish;               % Save from wStart to the immediately preceeding index that passed the threshold
                         Time        = Wren_loc(Range,1);    % Time indeces that we are working with
                         Data        = Wren_loc(Range,forceIndex);  % Corresponding force data for a given force element in a given window
-                        % if there isn't existing previous good fitting results, use current bad result.
-                        if (isnan(dataFit_pre))
-                            dataFit     = dataFit(1:length(Range),1);   % Data fit - window components
-                        % if there is existing previous good fitting results, use good result.
-                        else
-                            dataFit     = dataFit_pre(1:length(Range),1);   % Data fit - window components
-                            dataFit_pre = nan;
-                        end
-
+                        
+                        % !!! If windowIndex-window_length == wStart,
+                        % we will do polyfit on a single point, not serious
+                        % points. It's Wrong. But we will throw away
+                        % this kind of result in Motion Composition
+                        % layer
+                        polyCoeffs  = polyfit(Time,Data,1);            % First-order fit
+    
+                        % c) Compute the values of 'y' (dataFit) for a fitted line.
+                        dataFit = polyval(polyCoeffs, Time);
+                        
                     % First iteration. Keep index the same. 
                     else
                         wFinish     = windowIndex;
@@ -183,7 +184,7 @@ function [hasNew,dAvg,dMax,dMin,dStart,dFinish,dGradient,dLabel,dataFit_pre,wSta
                         Time        = Wren_loc(Range,1);   % Time indeces that we are working with
                         Data        = Wren_loc(Range,forceIndex);  % Corresponding force data for a given force element in a given windowdataFit     = dataFit(Range);               % Corresponding force data for a given force element in a given window                    
                         dataFit     = dataFit(Range);               % Corresponding force data for a given force element in a given window
-                        dataFit_pre = nan;
+
                     end
 %%                  ii) Retrieve the segment's statistical Data and write to file
                     [dAvg dMax dMin dStart dFinish dGradient dLabel]=rt_statisticalData(Time(1),   Time(length(Range)),...
