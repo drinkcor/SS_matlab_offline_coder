@@ -37,7 +37,7 @@ function [Results,Middles] = SharedM_onlineSnapVerification
 %     
     p = gcp();
 
-      f1 = parfeval(p,@SharedM_subSnapVerification,2,1,5,5,5,'HSA','2feafa'); % axisIndex=1
+      f1 = parfeval(p,@SharedM_subSnapVerification,2,5,0.5,3,3,3,'HSA','2feafa'); % axisIndex=1
 %     f2 = parfeval(p,@SharedM_subSnapVerification,1,2,'HSA','2feafa'); % axisIndex=2
 %     f3 = parfeval(p,@SharedM_subSnapVerification,1,3,'HSA','2feafa'); % axisIndex=3
 %     f4 = parfeval(p,@SharedM_subSnapVerification,1,4,'HSA','2feafa'); % axisIndex=4
@@ -47,7 +47,7 @@ function [Results,Middles] = SharedM_onlineSnapVerification
     while(1)
         while (localIndex==globalIndex)
             % Wait for input
-            pause(2);
+            pause(3.5);
         end
         
         drawnow;

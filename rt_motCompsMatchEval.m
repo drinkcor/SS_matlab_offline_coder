@@ -484,7 +484,7 @@ function [hasNew_llb,llbehStruc,index] = rt_motCompsMatchEval(index,labelType,mo
                     ];                     % [llBehClass,avgMagVal,rmsVal,mC1,mC2,t1Start,t1End,t2Start,t2End,tAvgIndex]
         hasNew_llb  = 1;
         % Update index
-        index       = index+2;  
+        index       = match+1;  
     
 %%  Behaviors with only one composition. The second composition (both parts are not to be considered) 
     else 
