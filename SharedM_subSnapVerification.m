@@ -154,7 +154,7 @@ function [Result,Middle_llbeh] = SharedM_subSnapVerification(axisIndex, uptillno
             cur = fread(fileR,[1,7],'double');
             [r,c] = size(cur);
             
-            if(mod(localIndex,5)==1)
+            if(localIndex>5)
                 
                 %% Primitive_layer
                 %  The process won't be execute unless there is enough data for fitting.
@@ -980,7 +980,7 @@ function [Result,Middle_llbeh] = SharedM_subSnapVerification(axisIndex, uptillno
     end
     
     fclose(fileR);
-    
+%     
     stop(tmr);
     delete(tmr);
 end

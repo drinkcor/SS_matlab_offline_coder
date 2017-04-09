@@ -37,7 +37,7 @@ function [Results,Middles] = SharedM_onlineSnapVerification
 %     
     p = gcp();
 
-      f1 = parfeval(p,@SharedM_subSnapVerification,2,5,0.5,3,3,3,'HSA','2feafa'); % axisIndex=1
+      f1 = parfeval(p,@SharedM_subSnapVerification,1,1,20,3,3,3,'HSA','2feafa'); % axisIndex=1
 %     f2 = parfeval(p,@SharedM_subSnapVerification,1,2,'HSA','2feafa'); % axisIndex=2
 %     f3 = parfeval(p,@SharedM_subSnapVerification,1,3,'HSA','2feafa'); % axisIndex=3
 %     f4 = parfeval(p,@SharedM_subSnapVerification,1,4,'HSA','2feafa'); % axisIndex=4
@@ -111,9 +111,8 @@ function [Results,Middles] = SharedM_onlineSnapVerification
 
     
     Results = cell(1,6);
-    Middles = cell(1,6);
     
-    [Results{1}, Middles{1}] = fetchOutputs(f1);
+    Results{1} = fetchOutputs(f1);
 
     
 %     value2 = fetchOutputs(f2);
@@ -145,30 +144,60 @@ function [Results,Middles] = SharedM_onlineSnapVerification
     fprintf('Amount of local items: %d ',localIndex);
 
     %% Do some plot here
-%     pFxL=subplot(3,2,1); plot(Wrench(:,1),Wrench(:,2));
-%     title('Fx Plot'); xlabel('Time (secs)'); ylabel('Force (N)');
-%     axis([Wrench(1,1),Wrench(globalIndex,1),min(Wrench(:,2)),max(Wrench(:,2))]);
-%     
-%     pFyL=subplot(3,2,3); plot(Wrench(:,1),Wrench(:,3));
-%     title('Fy Plot'); xlabel('Time (secs)'); ylabel('Force (N)');
-%     axis([Wrench(1,1),Wrench(globalIndex,1),min(Wrench(:,3)),max(Wrench(:,3))]);
-%     
-%     pFzL=subplot(3,2,5); plot(Wrench(:,1),Wrench(:,4));
-%     title('Fz Plot'); xlabel('Time (secs)'); ylabel('Force (N)');
-%     axis([Wrench(1,1),Wrench(globalIndex,1),min(Wrench(:,4)),max(Wrench(:,4))]);
-%     
-%     pMxL=subplot(3,2,2); plot(Wrench(:,1),Wrench(:,5));
-%     title('Mx Plot'); xlabel('Time (secs)'); ylabel('Moment (N-m)');
-%     axis([Wrench(1,1),Wrench(globalIndex,1),min(Wrench(:,5)),max(Wrench(:,5))]);
-%     
-%     pMyL=subplot(3,2,4); plot(Wrench(:,1),Wrench(:,6));
-%     title('My Plot'); xlabel('Time (secs)'); ylabel('Moment (N-m)');
-%     axis([Wrench(1,1),Wrench(globalIndex,1),min(Wrench(:,6)),max(Wrench(:,6))]);
-%     
-%     pMzL=subplot(3,2,6); plot(Wrench(:,1),Wrench(:,7));
-%     title('Mz Plot'); xlabel('Time (secs)'); ylabel('Moment (N-m)');
-%     axis([Wrench(1,1),Wrench(globalIndex,1),min(Wrench(:,7)),max(Wrench(:,7))]);
-%     
+    tFx = max(Wrench(:,2));   bFx = min(Wrench(:,2));
+    tFy = max(Wrench(:,3));   bFy = min(Wrench(:,3));
+    tFz = max(Wrench(:,4));   bFz = min(Wrench(:,4));
+    tMx = max(Wrench(:,5));   bMx = min(Wrench(:,5));
+    tMy = max(Wrench(:,6));   bMy = min(Wrench(:,6));
+    tMz = max(Wrench(:,7));   bMz = min(Wrench(:,7));
+    
+    TL = [tFx, tFy, tFz, tMx, tMy, tMz];
+    BL = [bFx, bFy, bFz, bMx, bMy, bMz];
+    
+    pFx =subplot(3,2,1); plot(Wrench(:,1),Wrench(:,2));
+    title('Fx Plot'); xlabel('Time (secs)'); ylabel('Force (N)');
+    axis([Wrench(1,1),Wrench(globalIndex,1),bFx,tFx]);
+    
+    pFy =subplot(3,2,3); plot(Wrench(:,1),Wrench(:,3));
+    title('Fy Plot'); xlabel('Time (secs)'); ylabel('Force (N)');
+    axis([Wrench(1,1),Wrench(globalIndex,1),bFy,tFy]);
+    
+    pFz =subplot(3,2,5); plot(Wrench(:,1),Wrench(:,4));
+    title('Fz Plot'); xlabel('Time (secs)'); ylabel('Force (N)');
+    axis([Wrench(1,1),Wrench(globalIndex,1),bFz,tFz]);
+    
+    pMx =subplot(3,2,2); plot(Wrench(:,1),Wrench(:,5));
+    title('Mx Plot'); xlabel('Time (secs)'); ylabel('Moment (N-m)');
+    axis([Wrench(1,1),Wrench(globalIndex,1),bMx,tMx]);
+    
+    pMy =subplot(3,2,4); plot(Wrench(:,1),Wrench(:,6));
+    title('My Plot'); xlabel('Time (secs)'); ylabel('Moment (N-m)');
+    axis([Wrench(1,1),Wrench(globalIndex,1),bMy,tMy]);
+    
+    pMz =subplot(3,2,6); plot(Wrench(:,1),Wrench(:,7));
+    title('Mz Plot'); xlabel('Time (secs)'); ylabel('Moment (N-m)');
+    axis([Wrench(1,1),Wrench(globalIndex,1),bMz,tMz]);
+    
+    
+    Type    = [ 'Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz' ];
+    pHandle = [ pFx, pFy, pFz, pMx, pMy, pMz ];
+
+    StrategyType = 'HSA';
+    
+    for index = 1:1
+        %% Plot primitives
+        
+        [rHandle] = plotRegressionFit(Results{index}.primiData,Results{index}.primiIndex,Type(index),pHandle(index));
+    
+        %% Plot motion composites
+        [rHandle] = plotMotionCompositions(StrategyType,rHandle,TL(index),BL(index),Results{index}.MCData_cl,Results{index}.MCIndex_cl );
+
+    
+        %% Plot low level composites
+        [rHandle] = plotLowLevelBehCompositions(StrategyType,rHandle,TL(index),BL(index),Results{index}.llbehData_cl,Results{index}.llbehIndex_cl);
+    end
+    
+    
     %% Write result to file
     
 %     plotType        = ['Fx';'Fy';'Fz';'Mx';'My';'Mz'];
