@@ -30,7 +30,7 @@ int main(int argc, char **argv)
   f.open(argv[1],ios::in);
 
   int index,j;
-  float force[3000][7];
+  float force[20000][7];
   
   index=0;   
 
